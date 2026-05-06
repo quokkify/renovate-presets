@@ -1,11 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Preset for repositories using GitHub Actions workflows. Groups action updates and pins to digests via best-practices.",
+  "description": "Composable preset for GitHub Actions workflows. Adds grouping packageRules; does not restrict enabledManagers so it can be combined with other language presets.",
   "extends": [
     "github>ylazakovich/renovate-config//presets/base"
-  ],
-  "enabledManagers": [
-    "github-actions"
   ],
   "packageRules": [
     {

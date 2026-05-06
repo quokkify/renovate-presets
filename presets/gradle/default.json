@@ -1,10 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Default Renovate preset for Java/Gradle projects. Enables Gradle managers and composes opt-in modules.",
-  "enabledManagers": [
-    "gradle",
-    "gradle-wrapper"
-  ],
+  "description": "Composable Renovate preset for Java/Gradle projects. Provides Gradle/Maven packageRules via opt-in modules; does not restrict enabledManagers so it can be combined with docker/default, github-actions/default, etc.",
   "extends": [
     "github>ylazakovich/renovate-config//presets/base",
     "github>ylazakovich/renovate-config//presets/gradle/modules/aliases",

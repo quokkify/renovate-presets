@@ -41,8 +41,8 @@ To pin to a specific tag (recommended for stability):
 
 | Preset | Path | Description |
 |---|---|---|
-| Default | `presets/gradle/default` | Gradle and Gradle Wrapper managers; composes all opt-in modules below |
-| Service | `presets/gradle/service` | Adds Docker, docker-compose, GitHub Actions and `custom.regex` managers on top of `gradle/default` |
+| Default | `presets/gradle/default` | Composable: Gradle/Maven packageRules + opt-in modules (does not restrict managers) |
+| Service | `presets/gradle/service` | Explicit allowlist: enables `gradle`, `gradle-wrapper`, `docker-compose`, `dockerfile`, `github-actions`, `custom.regex`. Use when you want to lock the manager set. |
 | `aliases` | `presets/gradle/modules/aliases` | Routes `com.atlassian.*` to Atlassian Maven repository |
 | `allowed-versions` | `presets/gradle/modules/allowed-versions` | Restricts `io.kubernetes:client-java*` to stable semver |
 | `changelogs` | `presets/gradle/modules/changelogs` | Custom changelog URLs for `checkstyle`, `fugue`, `bcprov-jdk18on`, `httpcore5` |
@@ -53,13 +53,13 @@ To pin to a specific tag (recommended for stability):
 
 | Preset | Path | Description |
 |---|---|---|
-| Default | `presets/github-actions/default` | Manages workflow file action versions, groups updates, automerges |
+| Default | `presets/github-actions/default` | Composable: groups workflow action updates and automerges (does not restrict managers) |
 
 ### Docker
 
 | Preset | Path | Description |
 |---|---|---|
-| Default | `presets/docker/default` | Manages Dockerfile and docker-compose image references with digest pinning |
+| Default | `presets/docker/default` | Composable: groups Dockerfile and docker-compose updates (does not restrict managers) |
 
 ### Migrations
 
@@ -87,18 +87,27 @@ To pin to a specific tag (recommended for stability):
 }
 ```
 
-### Multiple stacks composed
+### Java/Gradle service with Docker grouping
 
 ```json
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>ylazakovich/renovate-config//presets/gradle/default",
-    "github>ylazakovich/renovate-config//presets/docker/default",
-    "github>ylazakovich/renovate-config//presets/github-actions/default"
+    "github>ylazakovich/renovate-config//presets/gradle/service",
+    "github>ylazakovich/renovate-config//presets/docker/default"
   ]
 }
 ```
+
+## Composing presets — important note about `enabledManagers`
+
+Renovate **replaces** the `enabledManagers` array on each preset extension; it does not merge. Composing two presets that both set `enabledManagers` silently disables the earlier ones.
+
+Design contract in this repository:
+
+- All **`*/default`** presets are composable: they contribute only `packageRules`, base config and opt-in modules. None of them set `enabledManagers`. You can freely combine `gradle/default` + `docker/default` + `github-actions/default` and Renovate will scan everything it auto-detects.
+- **`gradle/service`** is the only preset that sets `enabledManagers` (explicit allowlist for the full Java service stack). Use it when you want to lock the manager set.
+- If you need a custom allowlist of your own, set `enabledManagers` directly in your consumer `renovate.json` and extend any number of `*/default` presets for their rules.
 
 ## Authentication
 
