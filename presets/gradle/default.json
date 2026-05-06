@@ -1,0 +1,16 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Default Renovate preset for Java/Gradle projects. Enables Gradle managers and composes opt-in modules.",
+  "enabledManagers": [
+    "gradle",
+    "gradle-wrapper"
+  ],
+  "extends": [
+    "github>ylazakovich/renovate-config//presets/base",
+    "github>ylazakovich/renovate-config//presets/gradle/modules/aliases",
+    "github>ylazakovich/renovate-config//presets/gradle/modules/allowed-versions",
+    "github>ylazakovich/renovate-config//presets/gradle/modules/changelogs",
+    "github>ylazakovich/renovate-config//presets/gradle/modules/compatibility",
+    "github>ylazakovich/renovate-config//presets/gradle/modules/disabled"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Disables Renovate for Gradle/Maven packages that should not be auto-updated.",
+  "packageRules": [
+    {
+      "description": "versions-maven-plugin is intentionally pinned",
+      "matchPackageNames": ["org.codehaus.mojo:versions-maven-plugin"],
+      "matchManagers": ["gradle"],
+      "enabled": false
+    },
+    {
+      "description": "ReportPortal contains a known bug with finishPreviousStep()",
+      "matchPackageNames": ["com.epam.reportportal:*"],
+      "matchManagers": ["gradle"],
+      "enabled": false
+    }
+  ]
+}

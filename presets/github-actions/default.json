@@ -1,0 +1,19 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Preset for repositories using GitHub Actions workflows. Groups action updates and pins to digests via best-practices.",
+  "extends": [
+    "github>ylazakovich/renovate-config//presets/base"
+  ],
+  "enabledManagers": [
+    "github-actions"
+  ],
+  "packageRules": [
+    {
+      "description": "Group GitHub Actions updates into one PR",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions",
+      "automerge": true,
+      "schedule": ["before 6am on Monday"]
+    }
+  ]
+}

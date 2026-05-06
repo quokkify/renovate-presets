@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Version constraints for Gradle/Maven packages that publish unstable or pre-release versions.",
+  "packageRules": [
+    {
+      "description": "Restrict io.kubernetes:client-java to stable x.y.z releases (skip pre-release)",
+      "matchPackageNames": ["io.kubernetes:client-java", "io.kubernetes:client-java-api-fluent"],
+      "allowedVersions": "/^[0-9]+\\.[0-9]+\\.[0-9]+$/",
+      "matchManagers": ["gradle"]
+    }
+  ]
+}

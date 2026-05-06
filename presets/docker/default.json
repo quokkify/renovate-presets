@@ -1,0 +1,19 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Preset for repositories using Dockerfile and docker-compose. Pins digests via best-practices and groups updates.",
+  "extends": [
+    "github>ylazakovich/renovate-config//presets/base"
+  ],
+  "enabledManagers": [
+    "dockerfile",
+    "docker-compose"
+  ],
+  "packageRules": [
+    {
+      "description": "Group Docker base image updates",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "docker images"
+    }
+  ]
+}

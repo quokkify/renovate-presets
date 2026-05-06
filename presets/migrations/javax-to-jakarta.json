@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Example preset for migrating javax.servlet to jakarta.servlet. Copy packageRules and adapt for actual migrations, then reference this preset alongside gradle/default.",
+  "packageRules": [
+    {
+      "description": "Example: migrate javax.servlet:javax.servlet-api to jakarta.servlet:jakarta.servlet-api 6.x",
+      "matchPackageNames": ["javax.servlet:javax.servlet-api"],
+      "replacementName": "jakarta.servlet:jakarta.servlet-api",
+      "replacementVersion": "6.0.0"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Default preset for ylazakovich/renovate-config. Most consumers should extend a specific path preset like //presets/gradle/default instead.",
+  "extends": ["github>ylazakovich/renovate-config//presets/base"]
+}

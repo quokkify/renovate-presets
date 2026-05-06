@@ -1,0 +1,26 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Custom changelog URLs for Gradle/Maven packages whose default changelog is missing or unhelpful.",
+  "packageRules": [
+    {
+      "matchPackageNames": ["com.puppycrawl.tools:checkstyle"],
+      "changelogUrl": "https://checkstyle.org/releasenotes.html",
+      "matchManagers": ["gradle"]
+    },
+    {
+      "matchPackageNames": ["io.atlassian.fugue:fugue"],
+      "changelogUrl": "https://bitbucket.org/atlassian/dc-platform/src/master/components/fugue/changelog.md",
+      "matchManagers": ["gradle"]
+    },
+    {
+      "matchPackageNames": ["org.bouncycastle:bcprov-jdk18on"],
+      "changelogUrl": "https://www.bouncycastle.org/download/bouncy-castle-java/#release-notes",
+      "matchManagers": ["gradle"]
+    },
+    {
+      "matchPackageNames": ["org.apache.httpcomponents.core5:httpcore5"],
+      "changelogUrl": "https://downloads.apache.org/httpcomponents/httpcore/RELEASE_NOTES-5.3.x.txt",
+      "matchManagers": ["gradle"]
+    }
+  ]
+}

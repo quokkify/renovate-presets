@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Registry overrides for Gradle/Maven packages not available on Maven Central.",
+  "packageRules": [
+    {
+      "description": "Atlassian packages are not on Maven Central; use Atlassian Maven repository",
+      "registryUrls": ["https://packages.atlassian.com/maven-public"],
+      "matchManagers": ["gradle"],
+      "matchPackageNames": ["/^com\\.atlassian\\./"]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Base preset: best-practices wrapper with sensible defaults (labels, dashboard, automerge of non-major).",
+  "extends": [
+    "config:best-practices",
+    "mergeConfidence:all-badges"
+  ],
+  "labels": ["dependencies"],
+  "commitMessageTopic": "{{depName}}",
+  "separateMultipleMajor": true,
+  "dependencyDashboardApproval": true,
+  "automerge": true,
+  "automergeType": "pr",
+  "platformAutomerge": true,
+  "prConcurrentLimit": 3,
+  "branchConcurrentLimit": 3,
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "dependencyDashboardApproval": false,
+    "prCreation": "approval"
+  },
+  "packageRules": [
+    {
+      "description": "Auto-merge non-major updates without dashboard approval",
+      "matchUpdateTypes": ["patch", "minor", "digest"],
+      "dependencyDashboardApproval": false,
+      "automerge": true
+    }
+  ]
+}

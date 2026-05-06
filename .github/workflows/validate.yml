@@ -1,0 +1,40 @@
+name: Validate Renovate Presets
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: renovate-config-validator
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate all preset JSON files
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find . -type f -name "*.json" \
+            -not -path "./.github/*" \
+            -not -name "package*.json")
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No preset JSON files found"
+            exit 1
+          fi
+          echo "Validating ${#files[@]} files:"
+          printf '  %s\n' "${files[@]}"
+          npx --yes --package renovate -- renovate-config-validator --strict "${files[@]}"
