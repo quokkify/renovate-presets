@@ -1,0 +1,18 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Grouping rules for Python/Django package major updates.",
+  "packageRules": [
+    {
+      "description": "Group Django stack major updates",
+      "matchPackageNames": ["django", "djangorestframework", "django-cors-headers", "whitenoise"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "django stack major"
+    },
+    {
+      "description": "Group backend runtime major updates",
+      "matchPackageNames": ["gunicorn", "psycopg", "psycopg-binary", "python-json-logger", "unittest-xml-reporting"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "backend runtime major"
+    }
+  ]
+}

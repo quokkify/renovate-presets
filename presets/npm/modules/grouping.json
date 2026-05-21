@@ -1,0 +1,24 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Grouping rules for npm/JS/TS ecosystem major updates.",
+  "packageRules": [
+    {
+      "description": "Group Vite ecosystem major updates",
+      "matchPackageNames": ["vite", "vitest", "@vitejs/plugin-react", "jsdom"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "vite ecosystem major"
+    },
+    {
+      "description": "Override vitest monorepo preset and merge into vite ecosystem major",
+      "matchSourceUrls": ["https://github.com/vitest-dev/vitest"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "vite ecosystem major"
+    },
+    {
+      "description": "Group React major updates",
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom", "react-router-dom"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "react major"
+    }
+  ]
+}

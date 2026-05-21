@@ -1,0 +1,11 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Group all allure-* npm packages into a single PR.",
+  "packageRules": [
+    {
+      "description": "Group Allure Report packages",
+      "groupName": "allure report",
+      "matchPackageNames": ["/^allure/"]
+    }
+  ]
+}
