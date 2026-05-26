@@ -59,7 +59,13 @@ To pin to a specific tag (recommended for stability):
 
 | Preset | Path | Description |
 |---|---|---|
-| Default | `presets/docker/default` | Composable: groups Dockerfile and docker-compose updates (does not restrict managers) |
+| Default | `presets/docker/default` | Composable: groups Dockerfile and docker-compose updates, but keeps `postgres`, `python`, `node` and `nginx` image non-major/digest updates in dedicated automerge PRs (does not restrict managers) |
+
+### npm / JS / TS
+
+| Preset | Path | Description |
+|---|---|---|
+| Default | `presets/npm/default` | Composable: npm packageRules; keeps Playwright non-major updates in a dedicated automerge PR and groups selected major ecosystems |
 
 ### Migrations
 

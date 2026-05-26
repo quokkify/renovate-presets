@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Composable preset for Dockerfile and docker-compose. Adds grouping packageRules; does not restrict enabledManagers so it can be combined with other language presets.",
+  "description": "Composable preset for Dockerfile and docker-compose. Adds grouping packageRules and isolated automerge rules for selected runtime images; does not restrict enabledManagers so it can be combined with other language presets.",
   "extends": [
     "github>ylazakovich/renovate-config//presets/base"
   ],
@@ -10,6 +10,42 @@
       "matchManagers": ["dockerfile", "docker-compose"],
       "matchUpdateTypes": ["minor", "patch", "digest"],
       "groupName": "docker images"
+    },
+    {
+      "description": "Keep PostgreSQL image non-major and digest updates in a dedicated automerge PR",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchPackageNames": ["postgres"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "postgres docker image",
+      "dependencyDashboardApproval": false,
+      "automerge": true
+    },
+    {
+      "description": "Keep Python runtime image non-major and digest updates in a dedicated automerge PR",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchPackageNames": ["python"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "python docker image",
+      "dependencyDashboardApproval": false,
+      "automerge": true
+    },
+    {
+      "description": "Keep Node.js runtime image non-major and digest updates in a dedicated automerge PR",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchPackageNames": ["node"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "node docker image",
+      "dependencyDashboardApproval": false,
+      "automerge": true
+    },
+    {
+      "description": "Keep Nginx runtime image non-major and digest updates in a dedicated automerge PR",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchPackageNames": ["nginx"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "nginx docker image",
+      "dependencyDashboardApproval": false,
+      "automerge": true
     }
   ]
 }
