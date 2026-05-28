@@ -35,7 +35,7 @@ To pin to a specific tag (recommended for stability):
 
 | Preset | Path | Description |
 |---|---|---|
-| Base | `presets/base` | `config:best-practices` wrapper with labels, dashboard approval and automerge of non-major updates |
+| Base | `presets/base` | `config:best-practices` wrapper with labels, dashboard approval and automerge of non-major updates after 9 days of release stability |
 
 ### Java / Gradle
 
