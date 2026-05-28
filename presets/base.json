@@ -23,8 +23,9 @@
   },
   "packageRules": [
     {
-      "description": "Auto-merge non-major updates without dashboard approval",
+      "description": "Auto-merge non-major updates without dashboard approval only after 9 days of release stability",
       "matchUpdateTypes": ["patch", "minor", "digest"],
+      "minimumReleaseAge": "9 days",
       "dependencyDashboardApproval": false,
       "automerge": true
     }
