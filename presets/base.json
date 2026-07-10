@@ -28,6 +28,12 @@
       "minimumReleaseAge": "9 days",
       "dependencyDashboardApproval": false,
       "automerge": true
+    },
+    {
+      "description": "Workaround for Renovate/Mend worker-signaled crash while fetching Traefik changelog from legacy containous/traefik sourceUrl; see renovatebot/renovate#43165. Keep in base because some Java service repos scan Docker files via autodetection without extending docker/default.",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchPackageNames": ["traefik"],
+      "fetchChangeLogs": "off"
     }
   ]
 }
