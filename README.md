@@ -14,7 +14,7 @@ In your consumer repository's `.github/renovate.json` (or `renovate.json` at the
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>ylazakovich/renovate-config//presets/gradle/default"
+    "github>quokkify/renovate-presets//presets/gradle/default"
   ]
 }
 ```
@@ -24,7 +24,7 @@ To pin to a specific tag (recommended for stability):
 ```json
 {
   "extends": [
-    "github>ylazakovich/renovate-config#v1.0.0//presets/gradle/default"
+    "github>quokkify/renovate-presets#v1.0.0//presets/gradle/default"
   ]
 }
 ```
@@ -80,7 +80,7 @@ To pin to a specific tag (recommended for stability):
 ```json
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>ylazakovich/renovate-config//presets/gradle/default"]
+  "extends": ["github>quokkify/renovate-presets//presets/gradle/default"]
 }
 ```
 
@@ -89,7 +89,7 @@ To pin to a specific tag (recommended for stability):
 ```json
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>ylazakovich/renovate-config//presets/gradle/service"]
+  "extends": ["github>quokkify/renovate-presets//presets/gradle/service"]
 }
 ```
 
@@ -99,8 +99,8 @@ To pin to a specific tag (recommended for stability):
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>ylazakovich/renovate-config//presets/gradle/service",
-    "github>ylazakovich/renovate-config//presets/docker/default"
+    "github>quokkify/renovate-presets//presets/gradle/service",
+    "github>quokkify/renovate-presets//presets/docker/default"
   ]
 }
 ```
