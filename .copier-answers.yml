@@ -1,8 +1,6 @@
-_commit: v2.1.0
+_commit: e19aecb1e0ea318485847b31039cdefb3586321b
 _src_path: https://github.com/quokkify/project-toolkit.git
-components:
--   path: .
-    type: node
+components: []
 docker: false
 project_name: renovate-presets
 release_please: true
@@ -10,6 +8,5 @@ renovate: true
 renovate_config_repository: quokkify/renovate-presets
 renovate_presets:
 - default
-- javascript
 - github-actions
 toolkit_version: v2.1.0
