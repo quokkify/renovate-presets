@@ -3,6 +3,7 @@ name: Release Please
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,3 +14,4 @@ jobs:
     uses: quokkify/project-toolkit/.github/workflows/release-please.yml@v2.1.0
     with:
       mode: single
+      release-type: simple
