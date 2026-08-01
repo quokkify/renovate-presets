@@ -17,6 +17,7 @@ jobs:
     uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.1.0
     with:
       working-directory: "."
+      node-version: "24"
       install-command: echo "No Node.js package dependencies in this preset repository"
       run-lint: false
       run-tests: false
@@ -34,7 +35,7 @@ jobs:
       - name: Set up Node.js
         uses: quokkify/project-toolkit/actions/setup-node@v2.1.0
         with:
-          node-version: "22"
+          node-version: "24"
           install-dependencies: "false"
           cache-dependencies: "false"
 
