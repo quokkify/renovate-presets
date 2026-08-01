@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   release:
-    uses: quokkify/project-toolkit/.github/workflows/release-please.yml@v2.1.0
+    uses: quokkify/project-toolkit/.github/workflows/release-please.yml@v2.2.0
     with:
       mode: single
       release-type: simple
