@@ -12,19 +12,6 @@ permissions:
   contents: read
 
 jobs:
-
-  node-1:
-    uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.1.0
-    with:
-      working-directory: "."
-      node-version: "24"
-      install-command: echo "No Node.js package dependencies in this preset repository"
-      run-lint: false
-      run-tests: false
-      run-build: false
-
-
-
   validate:
     name: renovate-config-validator
     runs-on: ubuntu-latest
