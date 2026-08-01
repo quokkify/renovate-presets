@@ -1,9 +1,8 @@
-name: Validate Renovate Presets
+name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
+  push:
     branches: [main]
   schedule:
     - cron: "0 6 * * 1"
@@ -20,12 +19,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: quokkify/project-toolkit/actions/setup-node@v2.1.0
         with:
-          node-version: "22"
+          node-version: "24"
+          install-dependencies: "false"
+          cache-dependencies: "false"
 
       - name: Validate all preset JSON files
+        shell: bash
         run: |
           set -euo pipefail
           mapfile -t files < <(find . -type f -name "*.json" \
