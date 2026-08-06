@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/quokkify/renovate-presets/compare/v1.0.0...v1.0.1) (2026-08-06)
+
+
+### Bug Fixes
+
+* **base:** disable Renovate Copier updates ([#7](https://github.com/quokkify/renovate-presets/issues/7)) ([0f7470b](https://github.com/quokkify/renovate-presets/commit/0f7470b22d96b3877e48b8a273d233acbd9ced90))
+* **ci:** align Copier template baseline ([#5](https://github.com/quokkify/renovate-presets/issues/5)) ([37d0374](https://github.com/quokkify/renovate-presets/commit/37d03749fa5b7b7ad83600575f5ea0462c2eb6e4))
+
 ## 1.0.0 (2026-08-01)
 
 
