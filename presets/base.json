@@ -23,6 +23,11 @@
   },
   "packageRules": [
     {
+      "description": "Disable competing Copier updates; project-toolkit fleet automation owns atomic Copier rollouts",
+      "matchManagers": ["copier"],
+      "enabled": false
+    },
+    {
       "description": "Auto-merge non-major updates without dashboard approval only after 3 days of release stability",
       "matchUpdateTypes": ["patch", "minor", "digest"],
       "minimumReleaseAge": "3 days",

@@ -6,6 +6,11 @@
   "labels": ["dependencies"],
   "packageRules": [
     {
+      "description": "Copier updates are managed by project-toolkit fleet automation",
+      "matchManagers": ["copier"],
+      "enabled": false
+    },
+    {
       "matchManagers": ["github-actions"],
       "groupName": "github-actions",
       "automerge": true
