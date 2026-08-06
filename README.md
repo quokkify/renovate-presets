@@ -37,7 +37,7 @@ To pin to a specific tag (recommended for stability):
 |---|---|---|
 | Base | `presets/base` | `config:best-practices` wrapper with labels, dashboard approval and automerge of non-major updates after 3 days of release stability; disables Renovate's built-in Copier updates |
 
-The base preset disables Renovate's built-in `copier` manager so each repository has one Copier rollout owner. Copier-managed repositories must update through their template's atomic rollout workflow (for example, `project-toolkit` fleet automation), which applies the template, restores canonical answer-file formatting, checks duplicated version answers and generated references, and opens a dedicated reviewable PR.
+The base preset disables Renovate's built-in `copier` manager so each repository has one Copier rollout owner. Copier-managed repositories must update through their template's atomic rollout workflow (for example, `project-toolkit` fleet automation), which applies the template, restores canonical answer-file formatting, checks duplicated version answers and generated references, and opens a dedicated reviewable PR. This repository's own `.github/renovate.json` carries the same rule because it intentionally does not consume its shared base preset.
 
 ### Java / Gradle
 
