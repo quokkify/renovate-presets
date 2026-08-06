@@ -35,9 +35,9 @@ To pin to a specific tag (recommended for stability):
 
 | Preset | Path | Description |
 |---|---|---|
-| Base | `presets/base` | `config:best-practices` wrapper with labels, dashboard approval and automerge of non-major updates after 3 days of release stability; disables Renovate's partial Copier updates |
+| Base | `presets/base` | `config:best-practices` wrapper with labels, dashboard approval and automerge of non-major updates after 3 days of release stability; disables Renovate's built-in Copier updates |
 
-The base preset disables Renovate's built-in `copier` manager. Copier-managed repositories must update through their template's atomic rollout workflow (for example, `project-toolkit` fleet automation), which updates the answer file and all generated files together. A direct Renovate edit changes only `_commit`, may reserialize unrelated YAML lists, and leaves generated files and duplicated version answers stale.
+The base preset disables Renovate's built-in `copier` manager so each repository has one Copier rollout owner. Copier-managed repositories must update through their template's atomic rollout workflow (for example, `project-toolkit` fleet automation), which applies the template, restores canonical answer-file formatting, checks duplicated version answers and generated references, and opens a dedicated reviewable PR.
 
 ### Java / Gradle
 

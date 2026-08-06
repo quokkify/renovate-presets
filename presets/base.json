@@ -23,7 +23,7 @@
   },
   "packageRules": [
     {
-      "description": "Disable partial Copier answer-file updates; project-toolkit fleet automation owns atomic Copier updates",
+      "description": "Disable competing Copier updates; project-toolkit fleet automation owns atomic Copier rollouts",
       "matchManagers": ["copier"],
       "enabled": false
     },
