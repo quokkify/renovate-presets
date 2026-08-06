@@ -31,7 +31,6 @@ jobs:
         run: |
           set -euo pipefail
           mapfile -t files < <(find . -type f -name "*.json" \
-            -not -path "./.github/*" \
             -not -name "package*.json")
           if [ "${#files[@]}" -eq 0 ]; then
             echo "No preset JSON files found"
