@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/quokkify/renovate-presets/compare/v1.0.1...v1.0.2) (2026-08-13)
+
+
+### Bug Fixes
+
+* **template:** resolve Copier release workflow conflict ([#9](https://github.com/quokkify/renovate-presets/issues/9)) ([75cec8d](https://github.com/quokkify/renovate-presets/commit/75cec8d7b743554735fd377e7ec91e09903d8a8d))
+
 ## [1.0.1](https://github.com/quokkify/renovate-presets/compare/v1.0.0...v1.0.1) (2026-08-06)
 
 
