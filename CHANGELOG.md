@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.3](https://github.com/quokkify/renovate-presets/compare/v1.0.2...v1.0.3) (2026-08-14)
+
+
+### Bug Fixes
+
+* **github-actions:** update actions individually ([#13](https://github.com/quokkify/renovate-presets/issues/13)) ([fde5471](https://github.com/quokkify/renovate-presets/commit/fde547156a4363a05f9f07d8d7e367182001df4e))
+* **template:** update project-toolkit to v2.12.1 ([#11](https://github.com/quokkify/renovate-presets/issues/11)) ([bcd506e](https://github.com/quokkify/renovate-presets/commit/bcd506e0a81ebd1e4515744b5b42ba861e77a097))
+
 ## [1.0.2](https://github.com/quokkify/renovate-presets/compare/v1.0.1...v1.0.2) (2026-08-13)
 
 
