@@ -1,14 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Composable preset for GitHub Actions workflows. Adds grouping packageRules; does not restrict enabledManagers so it can be combined with other language presets.",
+  "description": "Composable preset for GitHub Actions workflows. Updates each action separately; does not restrict enabledManagers so it can be combined with other language presets.",
   "extends": [
     "github>ylazakovich/renovate-config//presets/base"
   ],
   "packageRules": [
     {
-      "description": "Group GitHub Actions updates into one PR",
+      "description": "Update each GitHub Action in a separate PR",
       "matchManagers": ["github-actions"],
-      "groupName": "github-actions",
       "automerge": true,
       "schedule": ["before 6am on Monday"]
     }
