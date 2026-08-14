@@ -55,7 +55,7 @@ The base preset disables Renovate's built-in `copier` manager so each repository
 
 | Preset | Path | Description |
 |---|---|---|
-| Default | `presets/github-actions/default` | Composable: groups workflow action updates and automerges (does not restrict managers) |
+| Default | `presets/github-actions/default` | Composable: updates each workflow action in a separate PR and automerges (does not restrict managers) |
 
 ### Docker
 
