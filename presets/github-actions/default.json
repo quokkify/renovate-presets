@@ -6,8 +6,9 @@
   ],
   "packageRules": [
     {
-      "description": "Update each GitHub Action in a separate PR",
+      "description": "Update each GitHub Action in a separate PR, overriding inherited grouping",
       "matchManagers": ["github-actions"],
+      "groupName": null,
       "automerge": true,
       "schedule": ["before 6am on Monday"]
     }
