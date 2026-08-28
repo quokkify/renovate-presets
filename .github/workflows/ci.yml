@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: quokkify/project-toolkit/actions/setup-node@204b0f332c03d8ea8ceed920e3dc7487a13bb224 # v2.12.4
+        uses: quokkify/project-toolkit/actions/setup-node@v2.14.0
         with:
           node-version: "24"
           install-dependencies: "false"
