@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/quokkify/renovate-presets/compare/v1.0.3...v1.1.0) (2026-09-02)
+
+
+### Features
+
+* **base:** own project-toolkit template workflow versions ([#18](https://github.com/quokkify/renovate-presets/issues/18)) ([c04d637](https://github.com/quokkify/renovate-presets/commit/c04d6377f4ffa8a6b59c6b19f25a61b1f6528243))
+
 ## [1.0.3](https://github.com/quokkify/renovate-presets/compare/v1.0.2...v1.0.3) (2026-08-14)
 
 
