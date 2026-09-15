@@ -39,6 +39,8 @@ To pin to a specific tag (recommended for stability):
 
 The base preset disables Renovate's built-in `copier` manager so each repository has one Copier rollout owner. Copier-managed repositories must update through their template's atomic rollout workflow (for example, `project-toolkit` fleet automation), which applies the template, restores canonical answer-file formatting, checks duplicated version answers and generated references, and opens a dedicated reviewable PR. This repository's own `.github/renovate.json` carries the same rule because it intentionally does not consume its shared base preset.
 
+For GitHub Actions `uses-with` dependencies named `java-jdk`, major updates require explicit Dependency Dashboard approval and PR creation approval, and are never automerged. This rule only governs major updates: it does not pin or guarantee discovery of a particular Java 21.x patch version; the consumer's current value and Renovate datasource determine which update is proposed.
+
 ### Java / Gradle
 
 | Preset | Path | Description |
