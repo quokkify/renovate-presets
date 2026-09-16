@@ -47,6 +47,16 @@
       "automerge": true
     },
     {
+      "description": "Require explicit Dependency Dashboard approval for major Java JDK updates used by GitHub Actions; keep the major upgrade visible without creating or merging it automatically.",
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["uses-with"],
+      "matchPackageNames": ["java-jdk"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "prCreation": "approval",
+      "automerge": false
+    },
+    {
       "description": "Workaround for Renovate/Mend worker-signaled crash while fetching Traefik changelog from legacy containous/traefik sourceUrl; see renovatebot/renovate#43165. Keep in base because some Java service repos scan Docker files via autodetection without extending docker/default.",
       "matchManagers": ["dockerfile", "docker-compose"],
       "matchPackageNames": ["traefik"],
