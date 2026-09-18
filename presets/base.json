@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Base preset: best-practices wrapper with sensible defaults (labels, dashboard, automerge of non-major).",
+  "description": "Base preset: best-practices wrapper with labels, security updates, and explicit safe automerge rules.",
   "extends": [
     "config:best-practices",
     "mergeConfidence:all-badges"
@@ -9,7 +9,7 @@
   "commitMessageTopic": "{{depName}}",
   "separateMultipleMajor": true,
   "dependencyDashboardApproval": true,
-  "automerge": true,
+  "automerge": false,
   "automergeType": "pr",
   "platformAutomerge": true,
   "prConcurrentLimit": 3,
@@ -47,6 +47,14 @@
       "automerge": true
     },
     {
+      "description": "Merge lock-file maintenance without dashboard approval only as a PR after required checks pass",
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "dependencyDashboardApproval": false,
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
       "description": "Require explicit Dependency Dashboard approval for major Java JDK updates used by GitHub Actions; keep the major upgrade visible without creating or merging it automatically.",
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["uses-with"],
@@ -55,6 +63,13 @@
       "dependencyDashboardApproval": true,
       "prCreation": "approval",
       "automerge": false
+    },
+    {
+      "description": "Never automerge major dependency updates by default; major changes require an explicit review and approval",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "dependencyDashboardApproval": true,
+      "prCreation": "approval"
     },
     {
       "description": "Workaround for Renovate/Mend worker-signaled crash while fetching Traefik changelog from legacy containous/traefik sourceUrl; see renovatebot/renovate#43165. Keep in base because some Java service repos scan Docker files via autodetection without extending docker/default.",

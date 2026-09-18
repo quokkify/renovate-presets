@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Composable preset for GitHub Actions workflows. Updates each action separately; does not restrict enabledManagers so it can be combined with other language presets.",
+  "description": "Composable preset for GitHub Actions workflows. Updates each action separately on Monday mornings; non-major updates follow the base stability gate and major updates remain manual.",
   "extends": [
     "github>quokkify/renovate-presets//presets/base"
   ],
