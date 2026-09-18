@@ -35,7 +35,7 @@ To pin to a specific tag (recommended for stability):
 
 | Preset | Path | Description |
 |---|---|---|
-| Base | `presets/base` | `config:best-practices` wrapper with labels, dashboard approval and automerge of non-major updates after 3 days of release stability; disables Renovate's built-in Copier updates |
+| Base | `presets/base` | `config:best-practices` wrapper with labels, security updates, automatic patch/minor/digest merges after 3 days of release stability, and checked PR automerge for lock-file maintenance; major updates remain manual; disables Renovate's built-in Copier updates |
 
 The base preset disables Renovate's built-in `copier` manager so each repository has one Copier rollout owner. Copier-managed repositories must update through their template's atomic rollout workflow (for example, `project-toolkit` fleet automation), which applies the template, restores canonical answer-file formatting, checks duplicated version answers and generated references, and opens a dedicated reviewable PR. This repository's own `.github/renovate.json` carries the same rule because it intentionally does not consume its shared base preset.
 
@@ -57,7 +57,7 @@ For GitHub Actions `uses-with` dependencies named `java-jdk`, major updates requ
 
 | Preset | Path | Description |
 |---|---|---|
-| Default | `presets/github-actions/default` | Composable: updates each workflow action in a separate PR and automerges (does not restrict managers) |
+| Default | `presets/github-actions/default` | Composable: updates each workflow action in a separate PR on Monday mornings; non-major updates follow the base stability gate and major updates remain manual (does not restrict managers) |
 
 ### Docker
 
