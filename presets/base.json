@@ -6,6 +6,9 @@
     "mergeConfidence:all-badges"
   ],
   "labels": ["dependencies"],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
   "commitMessageTopic": "{{depName}}",
   "separateMultipleMajor": true,
   "dependencyDashboardApproval": true,
