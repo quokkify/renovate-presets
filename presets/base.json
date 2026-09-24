@@ -3,6 +3,7 @@
   "description": "Base preset: best-practices wrapper with labels, security updates, and explicit safe automerge rules.",
   "extends": [
     "config:best-practices",
+    ":semanticCommitTypeAll(chore)",
     "mergeConfidence:all-badges"
   ],
   "labels": ["dependencies"],
