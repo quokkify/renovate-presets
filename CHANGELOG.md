@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/quokkify/renovate-presets/compare/v1.1.0...v1.1.1) (2026-09-24)
+
+
+### Bug Fixes
+
+* **renovate:** migrate internal preset references ([#33](https://github.com/quokkify/renovate-presets/issues/33)) ([bea3e08](https://github.com/quokkify/renovate-presets/commit/bea3e087e9f0d0ea58b81780d9a4a63db8114408))
+
 ## [1.1.0](https://github.com/quokkify/renovate-presets/compare/v1.0.3...v1.1.0) (2026-09-10)
 
 
