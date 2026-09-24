@@ -2,11 +2,11 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "Composable Renovate preset for Java/Gradle projects. Provides Gradle/Maven packageRules via opt-in modules; does not restrict enabledManagers so it can be combined with docker/default, github-actions/default, etc.",
   "extends": [
-    "github>ylazakovich/renovate-config//presets/base",
-    "github>ylazakovich/renovate-config//presets/gradle/modules/aliases",
-    "github>ylazakovich/renovate-config//presets/gradle/modules/allowed-versions",
-    "github>ylazakovich/renovate-config//presets/gradle/modules/changelogs",
-    "github>ylazakovich/renovate-config//presets/gradle/modules/compatibility",
-    "github>ylazakovich/renovate-config//presets/gradle/modules/disabled"
+    "github>quokkify/renovate-presets//presets/base",
+    "github>quokkify/renovate-presets//presets/gradle/modules/aliases",
+    "github>quokkify/renovate-presets//presets/gradle/modules/allowed-versions",
+    "github>quokkify/renovate-presets//presets/gradle/modules/changelogs",
+    "github>quokkify/renovate-presets//presets/gradle/modules/compatibility",
+    "github>quokkify/renovate-presets//presets/gradle/modules/disabled"
   ]
 }

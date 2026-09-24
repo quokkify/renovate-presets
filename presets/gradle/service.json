@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "Service preset for Java/Gradle projects with Docker, docker-compose and GitHub Actions support. Extends gradle/default.",
   "extends": [
-    "github>ylazakovich/renovate-config//presets/gradle/default"
+    "github>quokkify/renovate-presets//presets/gradle/default"
   ],
   "enabledManagers": [
     "gradle",
