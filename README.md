@@ -37,6 +37,8 @@ To pin to a specific tag (recommended for stability):
 |---|---|---|
 | Base | `presets/base` | `config:best-practices` wrapper with `chore(deps)` semantic commit titles, labels, security updates, automatic patch/minor/digest merges after 3 days of release stability, and checked PR automerge for lock-file maintenance; major updates remain manual; disables Renovate's built-in Copier updates |
 
+The base preset keeps `semanticCommitType: "chore"` as the default configuration and also extends Renovate's `:semanticCommitTypeAll(chore)` preset. The latter applies `chore` to every dependency update type, including production Maven/Gradle updates that Renovate otherwise classifies as `fix`; the explicit default remains for compatibility with consumers that override or inspect the base settings.
+
 The base preset disables Renovate's built-in `copier` manager so each repository has one Copier rollout owner. Copier-managed repositories must update through their template's atomic rollout workflow (for example, `project-toolkit` fleet automation), which applies the template, restores canonical answer-file formatting, checks duplicated version answers and generated references, and opens a dedicated reviewable PR. This repository's own `.github/renovate.json` carries the same rule because it intentionally does not consume its shared base preset.
 
 For GitHub Actions `uses-with` dependencies named `java-jdk`, major updates require explicit Dependency Dashboard approval and PR creation approval, and are never automerged. This rule only governs major updates: it does not pin or guarantee discovery of a particular Java 21.x patch version; the consumer's current value and Renovate datasource determine which update is proposed.
