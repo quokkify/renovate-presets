@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "Composable preset for Dockerfile and docker-compose. Adds grouping packageRules and isolated automerge rules for selected runtime images; does not restrict enabledManagers so it can be combined with other language presets.",
   "extends": [
-    "github>ylazakovich/renovate-config//presets/base"
+    "github>quokkify/renovate-presets//presets/base"
   ],
   "packageRules": [
     {
