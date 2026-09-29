@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.2.0](https://github.com/quokkify/renovate-presets/compare/v0.1.0...v0.2.0) (2026-09-29)
+
+
+### ✨ Features
+
+* **base:** own project-toolkit template workflow versions ([#18](https://github.com/quokkify/renovate-presets/issues/18)) ([c04d637](https://github.com/quokkify/renovate-presets/commit/c04d6377f4ffa8a6b59c6b19f25a61b1f6528243))
+* bootstrap shared Renovate preset repository ([17eaada](https://github.com/quokkify/renovate-presets/commit/17eaadaa56e14de950526096d0eb3e760e314d2b))
+* **presets:** add python and npm composable presets ([f5c3044](https://github.com/quokkify/renovate-presets/commit/f5c304452c4cd909df141501c74f0f35f4b89e81))
+
+
+### 🐛 Bug Fixes
+
+* **base:** apply Traefik changelog workaround ([eb95942](https://github.com/quokkify/renovate-presets/commit/eb95942fb7a58fbb2a2b9b079f98eb17d281718b))
+* **base:** disable Renovate Copier updates ([#7](https://github.com/quokkify/renovate-presets/issues/7)) ([0f7470b](https://github.com/quokkify/renovate-presets/commit/0f7470b22d96b3877e48b8a273d233acbd9ced90))
+* **ci:** align Copier template baseline ([#5](https://github.com/quokkify/renovate-presets/issues/5)) ([37d0374](https://github.com/quokkify/renovate-presets/commit/37d03749fa5b7b7ad83600575f5ea0462c2eb6e4))
+* **docker:** disable Traefik changelog fetch ([8e9e880](https://github.com/quokkify/renovate-presets/commit/8e9e880107d7a9ceb1fd62cbd7f1eaa5df40eff6))
+* **github-actions:** update actions individually ([#13](https://github.com/quokkify/renovate-presets/issues/13)) ([fde5471](https://github.com/quokkify/renovate-presets/commit/fde547156a4363a05f9f07d8d7e367182001df4e))
+* **presets:** make */default presets composable ([2595c15](https://github.com/quokkify/renovate-presets/commit/2595c152a77447eb9078b575939cde90473ec3db))
+* **renovate:** migrate internal preset references ([#33](https://github.com/quokkify/renovate-presets/issues/33)) ([bea3e08](https://github.com/quokkify/renovate-presets/commit/bea3e087e9f0d0ea58b81780d9a4a63db8114408))
+* **template:** resolve Copier release workflow conflict ([#9](https://github.com/quokkify/renovate-presets/issues/9)) ([75cec8d](https://github.com/quokkify/renovate-presets/commit/75cec8d7b743554735fd377e7ec91e09903d8a8d))
+* **template:** update project-toolkit to v2.12.1 ([#11](https://github.com/quokkify/renovate-presets/issues/11)) ([bcd506e](https://github.com/quokkify/renovate-presets/commit/bcd506e0a81ebd1e4515744b5b42ba861e77a097))
+
+
+### 📚 Documentation
+
+* update repository references ([1342057](https://github.com/quokkify/renovate-presets/commit/1342057b8e37f13654c6b02bc7fd5a56ee9f42e8))
+
 ## [1.1.1](https://github.com/quokkify/renovate-presets/compare/v1.1.0...v1.1.1) (2026-09-24)
 
 
