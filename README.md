@@ -127,11 +127,23 @@ Consumer repositories use the [Mend Renovate App](https://github.com/apps/renova
 
 ## Validating preset changes
 
-This repository's CI validates every JSON preset on push, pull request and weekly cron. To validate locally:
+This repository's CI validates every JSON preset and tests the composed update policies on push, pull request and weekly cron. To validate locally:
 
 ```bash
 npx --yes --package renovate -- renovate-config-validator --strict <file.json>
+npx --yes --package renovate --call 'node --test tests/*.test.mjs'
 ```
+
+The policy tests use Renovate's own preset resolver and package-rule engine. Only
+the GitHub preset transport is replaced with reads from this checkout; built-in
+presets and matching/merge semantics come from the installed Renovate version.
+Unknown external sources fail the tests rather than reading remote presets.
+The suite checks manual major updates (including Java JDK), the three-day
+patch/minor/digest stability gate, lock-file maintenance, toolkit-owned workflow
+and Copier exclusions, and every ordering of Docker/npm/Gradle/GitHub Actions
+presets. A mutation test verifies that the original broad GitHub Actions
+automerge override breaks the contract. These are configuration-policy tests;
+required-check enforcement and actual merge execution remain platform concerns.
 
 ## License
 

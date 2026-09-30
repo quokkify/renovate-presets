@@ -8,7 +8,6 @@
     {
       "description": "Update each GitHub Action in a separate PR",
       "matchManagers": ["github-actions"],
-      "automerge": true,
       "schedule": ["before 6am on Monday"]
     }
   ]
