@@ -19,15 +19,31 @@ In your consumer repository's `.github/renovate.json` (or `renovate.json` at the
 }
 ```
 
-To pin to a specific tag (recommended for stability):
+For stable consumers, pin to a published release after the pilot checks pass.
+The tag follows the preset path. This example uses an illustrative `vX.Y.Z`;
+replace it with the released tag that includes the changes you want:
 
 ```json
 {
   "extends": [
-    "github>quokkify/renovate-presets#v1.0.0//presets/gradle/default"
+    "github>quokkify/renovate-presets//presets/gradle/default#vX.Y.Z"
   ]
 }
 ```
+
+Same-repository references inside presets use root-relative paths such as
+`/presets/base`. Renovate inherits the caller's tag through every nested preset,
+so a released configuration cannot silently pull modules from `main`. See
+[Renovate's relative preset documentation](https://docs.renovatebot.com/config-presets/#relative-preset-references).
+These relative references belong inside shared presets; consumer configuration
+must continue using the absolute `github>` form shown above.
+
+Promotion order: merge and validate a change, observe selected pilot repositories
+using the unpinned default-branch form, publish a release, then open updates to
+the stable consumers' explicit tags. Do not point stable consumers at an older
+release just to introduce pinning: it may omit the fixes being promoted.
+Changing a stable consumer's tag remains a reviewable configuration update;
+leave only the selected pilots following `main`.
 
 ## Available presets
 
@@ -130,8 +146,10 @@ Consumer repositories use the [Mend Renovate App](https://github.com/apps/renova
 This repository's CI validates every JSON preset and tests the composed update policies on push, pull request and weekly cron. To validate locally:
 
 ```bash
-npx --yes --package renovate -- renovate-config-validator --strict <file.json>
-npx --yes --package renovate --call 'node --test tests/*.test.mjs'
+export RENOVATE_VERSION=44.121.4 # Keep in sync with CI's single version setting.
+npx --yes --package "renovate@${RENOVATE_VERSION}" -- renovate-config-validator --strict <file.json>
+npx --yes --package "renovate@${RENOVATE_VERSION}" --call 'node --test tests/*.test.mjs'
+node scripts/validate-filenames.mjs
 ```
 
 The policy tests use Renovate's own preset resolver and package-rule engine. Only
@@ -144,6 +162,9 @@ and Copier exclusions, and every ordering of Docker/npm/Gradle/GitHub Actions
 presets. A mutation test verifies that the original broad GitHub Actions
 automerge override breaks the contract. These are configuration-policy tests;
 required-check enforcement and actual merge execution remain platform concerns.
+The graph tests also verify tag inheritance through every shipped preset and
+continued unpinned pilot resolution. The filename gate reads Git's tracked index,
+including collisions that a case-insensitive checkout cannot represent.
 
 ## License
 

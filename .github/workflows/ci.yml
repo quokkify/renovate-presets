@@ -11,20 +11,26 @@ on:
 permissions:
   contents: read
 
+env:
+  RENOVATE_VERSION: "44.121.4"
+
 jobs:
   validate:
     name: renovate-config-validator
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
         uses: quokkify/project-toolkit/actions/setup-node@v2.23.5
         with:
-          node-version: "24"
+          node-version: "24.21.0"
           install-dependencies: "false"
           cache-dependencies: "false"
+
+      - name: Validate tracked filename portability
+        run: node scripts/validate-filenames.mjs
 
       - name: Validate all preset JSON files
         shell: bash
@@ -39,7 +45,7 @@ jobs:
           fi
           echo "Validating ${#files[@]} files:"
           printf '  %s\n' "${files[@]}"
-          npx --yes --package renovate -- renovate-config-validator --strict "${files[@]}"
+          npx --yes --package "renovate@${RENOVATE_VERSION}" -- renovate-config-validator --strict "${files[@]}"
 
       - name: Test composed update policies with Renovate
-        run: npx --yes --package renovate --call 'node --test tests/*.test.mjs'
+        run: npx --yes --package "renovate@${RENOVATE_VERSION}" --call 'node --test tests/*.test.mjs'
