@@ -40,3 +40,6 @@ jobs:
           echo "Validating ${#files[@]} files:"
           printf '  %s\n' "${files[@]}"
           npx --yes --package renovate -- renovate-config-validator --strict "${files[@]}"
+
+      - name: Test composed update policies with Renovate
+        run: npx --yes --package renovate --call 'node --test tests/*.test.mjs'
