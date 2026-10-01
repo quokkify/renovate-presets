@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { Socket } from 'node:net';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -28,11 +28,13 @@ mock.method(Socket.prototype, 'connect', () => {
 // relative references, mergeable arrays, rule order, and dependency matchers.
 // Unrecognised external presets fail instead of fetching main or using stubs.
 let mutatePreset;
+let requestedPresets = [];
 for (const source of Object.keys(presetSources)) {
   presetSources[source].load = async () => ({
-    async getPreset({ repo, presetPath, presetName }) {
+    async getPreset({ repo, presetPath, presetName, tag }) {
       assert.equal(source, 'github', `Unexpected external source: ${source}`);
       assert.equal(repo, 'quokkify/renovate-presets');
+      requestedPresets.push({ presetPath, presetName, tag });
       const file = path.resolve(root, presetPath ?? '', `${presetName}.json`);
       assert.ok(file.startsWith(root), `Preset escaped checkout: ${file}`);
       const config = JSON.parse(readFileSync(file, 'utf8'));
@@ -44,10 +46,14 @@ for (const source of Object.keys(presetSources)) {
 
 const ref = (preset) => `github>quokkify/renovate-presets//presets/${preset}`;
 async function resolve(presets, mutation) {
+  return resolveReferences(presets.map(ref), mutation);
+}
+async function resolveReferences(references, mutation) {
   resetCache();
+  requestedPresets = [];
   mutatePreset = mutation;
   try {
-    return (await resolveConfigPresets({ extends: presets.map(ref) })).config;
+    return (await resolveConfigPresets({ extends: references })).config;
   } finally {
     mutatePreset = undefined;
   }
@@ -60,6 +66,26 @@ const dependency = (manager, depName, updateType, extra = {}) => ({
   updateType,
   packageFile: manager === 'github-actions' ? '.github/workflows/build.yml' : 'project-file',
   ...extra,
+});
+
+test('tagged presets inherit the release tag across the full graph; unpinned pilots use default branch', { timeout: 30_000 }, async () => {
+  const entries = ['gradle/service', 'docker/default', 'npm/default', 'python/default',
+    'github-actions/default', 'migrations/javax-to-jakarta'];
+  const expectedFiles = ['default.json', ...readdirSync(path.join(root, 'presets'), { recursive: true })
+    .filter((file) => file.endsWith('.json')).map((file) => `presets/${file}`)].sort();
+  for (const tag of ['v9.9.9-test', undefined]) {
+    const suffix = tag ? `#${tag}` : '';
+    const references = [`github>quokkify/renovate-presets${suffix}`,
+      ...entries.map((entry) => `${ref(entry)}${suffix}`)];
+    const config = await resolveReferences(references);
+    assert.ok(requestedPresets.length > entries.length, 'Nested presets must actually resolve');
+    assert.deepEqual([...new Set(requestedPresets.map(({ presetPath, presetName }) =>
+      [presetPath, `${presetName}.json`].filter(Boolean).join('/')))].sort(), expectedFiles);
+    for (const requested of requestedPresets) {
+      assert.equal(requested.tag, tag, `Nested preset escaped release: ${JSON.stringify(requested)}`);
+    }
+    manualMajor(await effective(config, dependency('github-actions', 'actions/checkout', 'major')));
+  }
 });
 const effective = (config, dep) => applyPackageRules({ ...config, ...dep });
 function manualMajor(result) {

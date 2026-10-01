@@ -2,8 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "Composable Renovate preset for npm/JS/TS projects. Provides npm packageRules via opt-in modules; does not restrict enabledManagers so it can be combined with docker/default, github-actions/default, etc.",
   "extends": [
-    "github>quokkify/renovate-presets//presets/base",
-    "github>quokkify/renovate-presets//presets/npm/modules/grouping",
-    "github>quokkify/renovate-presets//presets/npm/modules/allure"
+    "/presets/base",
+    "/presets/npm/modules/grouping",
+    "/presets/npm/modules/allure"
   ]
 }
