@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/quokkify/renovate-presets/compare/v0.2.0...v0.2.1) (2026-10-03)
+
+
+### 🐛 Bug Fixes
+
+* **renovate:** preserve manual major update policy ([#40](https://github.com/quokkify/renovate-presets/issues/40)) ([f6cafa6](https://github.com/quokkify/renovate-presets/commit/f6cafa6e64e3db0af492c61ea49a0b6df694fd1a))
+
 ## [0.2.0](https://github.com/quokkify/renovate-presets/compare/v0.1.0...v0.2.0) (2026-09-29)
 
 
