@@ -27,12 +27,12 @@
   },
   "packageRules": [
     {
-      "description": "Disable competing Copier updates; project-toolkit fleet automation owns atomic Copier rollouts",
+      "description": "Disable competing Copier updates; ci-kit fleet automation owns atomic Copier rollouts",
       "matchManagers": ["copier"],
       "enabled": false
     },
     {
-      "description": "Disable competing updates inside project-toolkit template-owned workflows; the toolkit owns those versions and delivers them through copier update",
+      "description": "Disable competing updates inside ci-kit template-owned workflows; the toolkit owns those versions and delivers them through copier update",
       "matchFileNames": [
         ".github/workflows/allure-report.yml",
         ".github/workflows/codeql.yml",
