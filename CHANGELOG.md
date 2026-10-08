@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/quokkify/renovate-presets/compare/v0.3.0...v0.4.0) (2026-10-08)
+
+
+### ✨ Features
+
+* **base:** scope custom regex deps commits by dependency name ([#51](https://github.com/quokkify/renovate-presets/issues/51)) ([89f579e](https://github.com/quokkify/renovate-presets/commit/89f579ec80da3d2c07d50721b04e1b111e3486c3))
+
 ## [0.3.0](https://github.com/quokkify/renovate-presets/compare/v0.2.1...v0.3.0) (2026-10-08)
 
 
