@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/quokkify/renovate-presets/compare/v0.2.1...v0.3.0) (2026-10-08)
+
+
+### ✨ Features
+
+* **base:** use deps(&lt;ecosystem&gt;) semantic commit titles ([#48](https://github.com/quokkify/renovate-presets/issues/48)) ([341a655](https://github.com/quokkify/renovate-presets/commit/341a65505517eacb1bea9578eab3c0fa02ca9ad5))
+
+
+### 🐛 Bug Fixes
+
+* **base:** scope deps commits by manager only ([#50](https://github.com/quokkify/renovate-presets/issues/50)) ([6a97d22](https://github.com/quokkify/renovate-presets/commit/6a97d22c563be8e3c48d4a19446ef85bd93643ec))
+
 ## [0.2.1](https://github.com/quokkify/renovate-presets/compare/v0.2.0...v0.2.1) (2026-10-03)
 
 
