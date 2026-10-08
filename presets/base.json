@@ -3,13 +3,13 @@
   "description": "Base preset: best-practices wrapper with labels, security updates, and explicit safe automerge rules.",
   "extends": [
     "config:best-practices",
-    ":semanticCommitTypeAll(chore)",
+    ":semanticCommitTypeAll(deps)",
     "mergeConfidence:all-badges"
   ],
   "labels": ["dependencies"],
   "semanticCommits": "enabled",
-  "semanticCommitType": "chore",
-  "semanticCommitScope": "deps",
+  "semanticCommitType": "deps",
+  "semanticCommitScope": "{{manager}}",
   "commitMessageTopic": "{{depName}}",
   "separateMultipleMajor": true,
   "dependencyDashboardApproval": true,
@@ -26,6 +26,31 @@
     "prCreation": "approval"
   },
   "packageRules": [
+    {
+      "description": "Scope actions dependency commit titles as deps(actions)",
+      "matchManagers": ["github-actions"],
+      "semanticCommitScope": "actions"
+    },
+    {
+      "description": "Scope docker dependency commit titles as deps(docker)",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "semanticCommitScope": "docker"
+    },
+    {
+      "description": "Scope gradle dependency commit titles as deps(gradle)",
+      "matchManagers": ["gradle", "gradle-wrapper", "maven"],
+      "semanticCommitScope": "gradle"
+    },
+    {
+      "description": "Scope npm dependency commit titles as deps(npm)",
+      "matchManagers": ["npm"],
+      "semanticCommitScope": "npm"
+    },
+    {
+      "description": "Scope python dependency commit titles as deps(python)",
+      "matchManagers": ["pip_requirements", "pip_setup", "pep621", "pip-compile", "poetry"],
+      "semanticCommitScope": "python"
+    },
     {
       "description": "Disable competing Copier updates; ci-kit fleet automation owns atomic Copier rollouts",
       "matchManagers": ["copier"],
