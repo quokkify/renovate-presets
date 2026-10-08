@@ -17,6 +17,7 @@ const renovateRoot = path.resolve(path.dirname(realpathSync(binary)), '..');
 const load = (name) => import(pathToFileURL(path.join(renovateRoot, 'dist', name)));
 const { resolveConfigPresets, presetSources } = await load('config/presets/index.js');
 const { applyPackageRules } = await load('util/package-rules/index.js');
+const template = await load('util/template/index.js');
 const { init: resetCache } = await load('util/cache/memory/index.js');
 const { init: initLogger } = await load('logger/index.js');
 await initLogger();
@@ -183,6 +184,20 @@ test('dependency commits use the deps type scoped by manager', { timeout: 30_000
     const effectiveConfig = await effective(config, dependency(manager, name, 'minor'));
     assert.equal(effectiveConfig.semanticCommitType, 'deps');
     assert.equal(effectiveConfig.semanticCommitScope, '{{manager}}');
+  }
+});
+
+test('custom regex dependency commits are scoped by lowercase dependency name', { timeout: 30_000 }, async () => {
+  const config = await resolve(['github-actions/default']);
+  for (const [name, scope] of [
+    ['python', 'python'], ['pip', 'pip'], ['PyYAML', 'pyyaml'], ['renovate', 'renovate'],
+    ['quokkify/ci-kit', 'ci-kit'], ['rhysd/actionlint', 'actionlint'],
+    ['quokkify/compose-health-check-action', 'compose-health-check-action'],
+  ]) {
+    const result = await effective(config, dependency('custom.regex', name, 'minor'));
+    const rendered = template.compile(result.semanticCommitScope, { ...result, depName: name });
+    assert.equal(rendered, scope);
+    assert.match(rendered, /^[a-z0-9][a-z0-9._-]*$/);
   }
 });
 

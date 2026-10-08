@@ -51,7 +51,7 @@ leave only the selected pilots following `main`.
 
 | Preset | Path | Description |
 |---|---|---|
-| Base | `presets/base` | `config:best-practices` wrapper with `deps(<manager>)` semantic commit titles (for example `deps(github-actions)`, `deps(npm)`), labels, security updates, automatic patch/minor/digest merges after 3 days of release stability, and checked PR automerge for lock-file maintenance; major updates remain manual; disables Renovate's built-in Copier updates |
+| Base | `presets/base` | `config:best-practices` wrapper with `deps(<manager>)` semantic commit titles (for example `deps(github-actions)`, `deps(npm)`); custom regex managers use the lowercase dependency name without its organization, e.g. `deps(python)` or `deps(ci-kit)`, labels, security updates, automatic patch/minor/digest merges after 3 days of release stability, and checked PR automerge for lock-file maintenance; major updates remain manual; disables Renovate's built-in Copier updates |
 
 The base preset keeps `semanticCommitType: "deps"` as the default configuration and also extends Renovate's `:semanticCommitTypeAll(deps)` preset. The latter applies `deps` to every dependency update type, including production Maven/Gradle updates that Renovate otherwise classifies as `fix`; the explicit default remains for compatibility with consumers that override or inspect the base settings.
 
