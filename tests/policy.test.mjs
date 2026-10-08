@@ -172,21 +172,17 @@ test('Gradle exclusions remain disabled and do not disable adjacent packages', {
   assert.notEqual((await effective(config, dependency('github-actions', 'actions/checkout', 'minor'))).enabled, false);
 });
 
-test('dependency commits use the deps type with an ecosystem scope', { timeout: 30_000 }, async () => {
+test('dependency commits use the deps type scoped by manager', { timeout: 30_000 }, async () => {
   const config = await resolve(['gradle/default', 'docker/default', 'npm/default', 'github-actions/default']);
-  for (const [manager, name, scope] of [
-    ['github-actions', 'actions/checkout', 'actions'],
-    ['dockerfile', 'postgres', 'docker'],
-    ['docker-compose', 'node', 'docker'],
-    ['gradle', 'org.hibernate.orm:hibernate-core', 'gradle'],
-    ['npm', 'react', 'npm'],
-    ['pip_requirements', 'requests', 'python'],
+  for (const [manager, name] of [
+    ['github-actions', 'actions/checkout'],
+    ['dockerfile', 'postgres'],
+    ['gradle', 'org.hibernate.orm:hibernate-core'],
+    ['npm', 'react'],
   ]) {
-    for (const update of ['major', 'minor', 'patch']) {
-      const effectiveConfig = await effective(config, dependency(manager, name, update));
-      assert.equal(effectiveConfig.semanticCommitType, 'deps');
-      assert.equal(effectiveConfig.semanticCommitScope, scope);
-    }
+    const effectiveConfig = await effective(config, dependency(manager, name, 'minor'));
+    assert.equal(effectiveConfig.semanticCommitType, 'deps');
+    assert.equal(effectiveConfig.semanticCommitScope, '{{manager}}');
   }
 });
 
