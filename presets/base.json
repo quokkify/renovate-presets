@@ -27,6 +27,11 @@
   },
   "packageRules": [
     {
+      "description": "Scope custom regex dependency commit titles by dependency name, e.g. deps(python) or deps(ci-kit), instead of deps(custom.regex)",
+      "matchManagers": ["custom.regex"],
+      "semanticCommitScope": "{{{lowercase (replace '^.*/' '' depName)}}}"
+    },
+    {
       "description": "Disable competing Copier updates; ci-kit fleet automation owns atomic Copier rollouts",
       "matchManagers": ["copier"],
       "enabled": false
