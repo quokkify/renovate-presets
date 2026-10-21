@@ -43,6 +43,7 @@
         ".github/workflows/codeql.yml",
         ".github/workflows/copier-update.yml",
         ".github/workflows/gitleaks.yml",
+        ".github/workflows/labels.yml",
         ".github/workflows/release.yml",
         ".github/workflows/validate.yml"
       ],
