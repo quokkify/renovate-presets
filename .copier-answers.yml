@@ -18,3 +18,8 @@ toolkit_version: v3.10.0
 module: legacy
 handed_off:
   - validate
+  - base
+  - security
+  - release
+  - allure
+  - renovate
