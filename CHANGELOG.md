@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/quokkify/renovate-presets/compare/v0.4.0...v0.5.0) (2026-10-28)
+
+
+### ✨ Features
+
+* **base:** cover the ci-kit labels workflow ([#63](https://github.com/quokkify/renovate-presets/issues/63)) ([4140872](https://github.com/quokkify/renovate-presets/commit/4140872a5c9ae03a8b6a1729bac5720fc20d2e75))
+
 ## [0.4.0](https://github.com/quokkify/renovate-presets/compare/v0.3.0...v0.4.0) (2026-10-08)
 
 
