@@ -70,6 +70,7 @@ For GitHub Actions `uses-with` dependencies named `java-jdk`, major updates requ
 | `changelogs` | `presets/gradle/modules/changelogs` | Custom changelog URLs for `checkstyle`, `fugue`, `bcprov-jdk18on`, `httpcore5` |
 | `compatibility` | `presets/gradle/modules/compatibility` | PR-body compatibility notes for Hibernate/Jakarta/hypersistence-utils |
 | `disabled` | `presets/gradle/modules/disabled` | Disables `versions-maven-plugin` and `com.epam.reportportal:*` |
+| `grouping` | `presets/gradle/modules/grouping` | Groups all `dev.quokkify:*` (q4j) updates into one `q4j` PR; `dev.quokkify.archgate:*` is excluded |
 
 ### GitHub Actions
 

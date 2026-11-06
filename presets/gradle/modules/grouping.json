@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Grouping rules for Gradle/Maven packages that must be updated together.",
+  "packageRules": [
+    {
+      "description": "Update all q4j modules (dev.quokkify:*) in one PR so every catalog that carries the q4j version stays equal. Matches by package name, not by dependency name, so catalogs that declare q4j under different aliases land in the same group. dev.quokkify.archgate:* is a separate product and does not match.",
+      "matchManagers": ["gradle"],
+      "matchPackageNames": ["/^dev\\.quokkify:/"],
+      "groupName": "q4j",
+      "groupSlug": "q4j"
+    }
+  ]
+}

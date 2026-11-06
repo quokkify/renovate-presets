@@ -173,6 +173,23 @@ test('Gradle exclusions remain disabled and do not disable adjacent packages', {
   assert.notEqual((await effective(config, dependency('github-actions', 'actions/checkout', 'minor'))).enabled, false);
 });
 
+test('q4j modules update in one group across catalogs; archgate and others do not', { timeout: 30_000 }, async () => {
+  const config = await resolve(['gradle/default', 'github-actions/default']);
+  for (const [name, file] of [
+    ['dev.quokkify:q4j-core', 'gradle/libs.versions.toml'],
+    ['dev.quokkify:q4j-selenide', 'seed/gradle/seed.versions.toml'],
+  ]) {
+    for (const update of ['major', 'minor', 'patch']) {
+      const result = await effective(config, dependency('gradle', name, update, { packageFile: file }));
+      assert.equal(result.groupName, 'q4j');
+      assert.equal(result.groupSlug, 'q4j');
+    }
+  }
+  for (const name of ['dev.quokkify.archgate:archgate-core', 'dev.quokkify.archgate:rules-archunit', 'org.hibernate.orm:hibernate-core']) {
+    assert.notEqual((await effective(config, dependency('gradle', name, 'minor'))).groupName, 'q4j');
+  }
+});
+
 test('dependency commits use the deps type scoped by manager', { timeout: 30_000 }, async () => {
   const config = await resolve(['gradle/default', 'docker/default', 'npm/default', 'github-actions/default']);
   for (const [manager, name] of [
