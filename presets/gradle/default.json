@@ -7,7 +7,6 @@
     "/presets/gradle/modules/allowed-versions",
     "/presets/gradle/modules/changelogs",
     "/presets/gradle/modules/compatibility",
-    "/presets/gradle/modules/disabled",
-    "/presets/gradle/modules/grouping"
+    "/presets/gradle/modules/disabled"
   ]
 }

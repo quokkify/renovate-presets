@@ -70,7 +70,6 @@ For GitHub Actions `uses-with` dependencies named `java-jdk`, major updates requ
 | `changelogs` | `presets/gradle/modules/changelogs` | Custom changelog URLs for `checkstyle`, `fugue`, `bcprov-jdk18on`, `httpcore5` |
 | `compatibility` | `presets/gradle/modules/compatibility` | PR-body compatibility notes for Hibernate/Jakarta/hypersistence-utils |
 | `disabled` | `presets/gradle/modules/disabled` | Disables `versions-maven-plugin` and `com.epam.reportportal:*` |
-| `grouping` | `presets/gradle/modules/grouping` | Groups all `dev.quokkify:*` (q4j) updates into one `q4j` PR; `dev.quokkify.archgate:*` is excluded |
 
 ### GitHub Actions
 
@@ -113,6 +112,19 @@ For GitHub Actions `uses-with` dependencies named `java-jdk`, major updates requ
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>quokkify/renovate-presets//presets/gradle/service"]
+}
+```
+
+### Java/Gradle with q4j grouped in one PR (opt-in)
+
+`presets/gradle/q4j` is not part of `gradle/default`. Extend it explicitly in projects that carry the q4j version in more than one catalog. It groups all `dev.quokkify:*` packages under the `q4j` group by package name; `dev.quokkify.archgate:*` is excluded.
+
+```json
+{
+  "extends": [
+    "github>quokkify/renovate-presets//presets/gradle/default",
+    "github>quokkify/renovate-presets//presets/gradle/q4j"
+  ]
 }
 ```
 
