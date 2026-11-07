@@ -44,6 +44,7 @@
         ".github/workflows/copier-update.yml",
         ".github/workflows/gitleaks.yml",
         ".github/workflows/labels.yml",
+        ".github/workflows/pr-contract.yml",
         ".github/workflows/release.yml",
         ".github/workflows/validate.yml"
       ],
