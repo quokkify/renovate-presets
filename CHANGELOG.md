@@ -2,12 +2,24 @@
 
 ## [0.5.0](https://github.com/quokkify/renovate-presets/compare/v0.4.0...v0.5.0) (2026-11-07)
 
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 3 new · 19 internal
 
-### ✨ Features
+### ✨ New
 
-* add opt-in q4j grouping preset ([#74](https://github.com/quokkify/renovate-presets/issues/74)) ([b9b98a1](https://github.com/quokkify/renovate-presets/commit/b9b98a13639a9754aad6d91846f2c13d15b43bb1))
-* **base:** cover the ci-kit labels workflow ([#63](https://github.com/quokkify/renovate-presets/issues/63)) ([4140872](https://github.com/quokkify/renovate-presets/commit/4140872a5c9ae03a8b6a1729bac5720fc20d2e75))
-* **base:** stop Renovate from updating the ci-kit PR contract workflow ([#75](https://github.com/quokkify/renovate-presets/issues/75)) ([064c74b](https://github.com/quokkify/renovate-presets/commit/064c74b6b9519d012096058a7323fc0c9e6fd8f1))
+- add opt-in q4j grouping preset ([#74](https://github.com/quokkify/renovate-presets/pull/74))
+- **base:** cover the ci-kit labels workflow ([#63](https://github.com/quokkify/renovate-presets/pull/63))
+- **base:** stop Renovate from updating the ci-kit PR contract workflow — Renovate no longer opens update PRs for `.github/workflows/pr-contract.yml`. It is a new ci-kit core workflow, and copier keeps its action pins current, as with the other template-owned workflows. ([#75](https://github.com/quokkify/renovate-presets/pull/75))
+
+<details><summary>Internal changes (19 PRs)</summary>
+
+**Maintenance**
+
+- **ci-kit:** hand off base, security, release, allure, renovate to modules ([#68](https://github.com/quokkify/renovate-presets/pull/68))
+- **ci-kit:** hand off validate to core module ([#57](https://github.com/quokkify/renovate-presets/pull/57))
+- **template:** update shared project template (17 PRs, [#53](https://github.com/quokkify/renovate-presets/pull/53)–[#73](https://github.com/quokkify/renovate-presets/pull/73))
+
+</details>
 
 ## [0.4.0](https://github.com/quokkify/renovate-presets/compare/v0.3.0...v0.4.0) (2026-10-08)
 
