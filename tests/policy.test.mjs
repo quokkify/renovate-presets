@@ -70,7 +70,7 @@ const dependency = (manager, depName, updateType, extra = {}) => ({
 });
 
 test('tagged presets inherit the release tag across the full graph; unpinned pilots use default branch', { timeout: 30_000 }, async () => {
-  const entries = ['gradle/service', 'docker/default', 'npm/default', 'python/default',
+  const entries = ['gradle/service', 'gradle/q4j', 'docker/default', 'npm/default', 'python/default',
     'github-actions/default', 'migrations/javax-to-jakarta'];
   const expectedFiles = ['default.json', ...readdirSync(path.join(root, 'presets'), { recursive: true })
     .filter((file) => file.endsWith('.json')).map((file) => `presets/${file}`)].sort();
@@ -171,6 +171,25 @@ test('Gradle exclusions remain disabled and do not disable adjacent packages', {
     assert.notEqual((await effective(config, dependency('gradle', 'org.codehaus.mojo:other', update))).enabled, false);
   }
   assert.notEqual((await effective(config, dependency('github-actions', 'actions/checkout', 'minor'))).enabled, false);
+});
+
+test('opt-in gradle/q4j groups q4j modules in one group across catalogs; archgate and others do not', { timeout: 30_000 }, async () => {
+  const config = await resolve(['gradle/default', 'gradle/q4j', 'github-actions/default']);
+  const defaults = await resolve(['gradle/default']);
+  assert.notEqual((await effective(defaults, dependency('gradle', 'dev.quokkify:q4j-core', 'minor'))).groupName, 'q4j', 'gradle/default must not group q4j');
+  for (const [name, file] of [
+    ['dev.quokkify:q4j-core', 'gradle/libs.versions.toml'],
+    ['dev.quokkify:q4j-selenide', 'seed/gradle/seed.versions.toml'],
+  ]) {
+    for (const update of ['major', 'minor', 'patch']) {
+      const result = await effective(config, dependency('gradle', name, update, { packageFile: file }));
+      assert.equal(result.groupName, 'q4j');
+      assert.equal(result.groupSlug, 'q4j');
+    }
+  }
+  for (const name of ['dev.quokkify.archgate:archgate-core', 'dev.quokkify.archgate:rules-archunit', 'org.hibernate.orm:hibernate-core']) {
+    assert.notEqual((await effective(config, dependency('gradle', name, 'minor'))).groupName, 'q4j');
+  }
 });
 
 test('dependency commits use the deps type scoped by manager', { timeout: 30_000 }, async () => {

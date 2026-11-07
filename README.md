@@ -115,6 +115,19 @@ For GitHub Actions `uses-with` dependencies named `java-jdk`, major updates requ
 }
 ```
 
+### Java/Gradle with q4j grouped in one PR (opt-in)
+
+`presets/gradle/q4j` is not part of `gradle/default`. Extend it explicitly in projects that carry the q4j version in more than one catalog. It groups all `dev.quokkify:*` packages under the `q4j` group by package name; `dev.quokkify.archgate:*` is excluded.
+
+```json
+{
+  "extends": [
+    "github>quokkify/renovate-presets//presets/gradle/default",
+    "github>quokkify/renovate-presets//presets/gradle/q4j"
+  ]
+}
+```
+
 ### Java/Gradle service with Docker grouping
 
 ```json
