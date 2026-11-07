@@ -150,7 +150,7 @@ test('base and all composition orders preserve update policy across managers and
       for (const update of ['major', 'minor', 'patch', 'digest']) {
         assert.equal((await effective(config, dependency('copier', 'template', update))).enabled, false);
         for (const file of [
-          'allure-report', 'codeql', 'copier-update', 'gitleaks', 'labels', 'release', 'validate',
+          'allure-report', 'codeql', 'copier-update', 'gitleaks', 'labels', 'pr-contract', 'release', 'validate',
         ]) {
           const dep = dependency('github-actions', 'actions/checkout', update, {
             packageFile: `.github/workflows/${file}.yml`,
