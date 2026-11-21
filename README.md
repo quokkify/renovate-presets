@@ -126,14 +126,18 @@ Effective behaviour on top of the base preset:
 - **No automerge** for GitHub Actions (including workflow container and service
   images), all Docker images (`docker` datasource, plus every Dockerfile and
   docker-compose update), the Gradle wrapper, Gradle plugins (`depType: plugin`),
-  Maven build plugins and extensions (`depType: build`) and `custom.regex` tool
+  Maven `depType: build` (build plugins and extensions, plus anything else Renovate
+  extracts from `<build>`/`<reporting>`) and `custom.regex` tool
   pins. Their non-major PRs still open without dashboard approval after the 3-day
   stability gate; a human merges them. Majors stay manual as in the base preset.
-- **Lock-file maintenance is not automerged.** `minimumReleaseAge` cannot gate it:
-  lock-file maintenance carries no release timestamp, so Renovate either skips the
-  age check or, under the default `minimumReleaseAgeBehaviour: timestamp-required`,
-  keeps the stability status pending indefinitely. A reviewed PR is the reliable
-  control for freshly published transitive versions.
+- **Lock-file maintenance is not automerged.** `config:best-practices` enables it
+  weekly (`:maintainLockFilesWeekly`) and base automerges it with no age gate. An age
+  gate is not a usable fix: lock-file maintenance has no release timestamp, and
+  Renovate's documentation says that under the default
+  `minimumReleaseAgeBehaviour: timestamp-required` such updates wait for
+  `minimumReleaseAge` like any other update without a timestamp, which they never
+  satisfy; with `timestamp-optional` the check is skipped. A reviewed PR is the
+  reliable control for freshly published transitive versions.
 - **Vulnerability fixes open at once.** `vulnerabilityAlerts` sets
   `prCreation: immediate`, `dependencyDashboardApproval: false`,
   `minimumReleaseAge: null` and `schedule: []`, and lifts the concurrency caps with
@@ -143,6 +147,9 @@ Effective behaviour on top of the base preset:
   `prHourlyLimit` to them, and always processes them before other branches. Automerge
   is not forced: a fix for an execution-sensitive dependency or a major fix still
   waits for review, while a library patch fix automerges on green checks.
+  Trade-off: base deliberately holds vulnerability PRs for dashboard approval and
+  caps them at 3 concurrent branches; this preset reverses both, so a repository
+  with many open advisories can receive many security PRs at once.
 
 ### Coupled-stack grouping (opt-in)
 
@@ -170,9 +177,13 @@ No existing preset extends it. Add it **last**, after `python/default` or
   majors need Dependency Dashboard approval and never automerge. Non-major updates
   share the `reportportal-images` branch and follow the base stability gate.
   ReportPortal Gradle artifacts stay disabled by `gradle/modules/disabled`.
-- **Django stack** packages on PyPI share the `django stack` group with
-  `separateMajorMinor: false`, so a framework minor and a companion major land in the
-  same `django-stack` branch. This replaces the major-only `django stack major`
+- **Django stack** packages on PyPI share the `django stack` group for every update
+  type: minor, patch and digest updates land together in the `django-stack` branch,
+  majors together in `major-django-stack` (dashboard approval, as in base).
+  `separateMajorMinor` stays on on purpose: turning it off offers only the newest
+  version, so a project behind a pending major would stop receiving minors. A
+  framework minor and a companion major therefore still arrive in separate
+  branches. This replaces the major-only `django stack major`
   group from `python/modules/grouping` for consumers that add the preset. A branch
   that contains a major still needs dashboard approval.
 - Vulnerability fixes keep their own branch: Renovate's `vulnerabilityAlerts`

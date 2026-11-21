@@ -20,12 +20,11 @@
       "automerge": false
     },
     {
-      "description": "Update the Django stack in one branch for every update type, so a framework bump cannot land without its companion packages",
+      "description": "Group the Django stack for every update type, not only majors, so a framework bump and its companion packages land in the same branch: one branch for minor, patch and digest updates and one for major updates. separateMajorMinor stays on so a pending major never hides the newest minor.",
       "matchDatasources": ["pypi"],
       "matchPackageNames": ["django", "djangorestframework", "django-cors-headers", "whitenoise"],
       "groupName": "django stack",
       "groupSlug": "django-stack",
-      "separateMajorMinor": false,
       "separateMultipleMajor": false
     }
   ]

@@ -272,8 +272,11 @@ async function vulnerabilityFix(config, dep, { datasource, depVersion, fixedVers
 }
 
 test('existing presets never pull in the opt-in hardening or grouping presets', { timeout: 60_000 }, async () => {
-  for (const entry of ['base', 'gradle/default', 'gradle/service', 'gradle/q4j', 'docker/default', 'npm/default',
-    'python/default', 'github-actions/default', 'migrations/javax-to-jakarta']) {
+  const entries = readdirSync(path.join(root, 'presets'), { recursive: true })
+    .filter((file) => file.endsWith('.json') && !optIn.includes(`presets/${file}`))
+    .map((file) => file.replace(/\.json$/, ''));
+  assert.ok(entries.includes('base') && entries.includes('python/modules/grouping'));
+  for (const entry of entries) {
     await resolve([entry]);
     const files = requestedPresets.map(({ presetPath, presetName }) => `${presetPath}/${presetName}.json`);
     for (const file of optIn) assert.ok(!files.includes(file), `${entry} must not extend ${file}`);
@@ -353,6 +356,8 @@ test('opt-in hardening opens vulnerability fixes immediately, unthrottled and wi
   assert.equal(baseFix.prCreation, 'approval', 'Base holds vulnerability PRs for approval today');
   assert.equal(baseFix.branchConcurrentLimit, 3, 'Base caps vulnerability branches at 3 today');
 
+  // Only prCreation and branchConcurrentLimit differ from base; the remaining
+  // assertions pin the Renovate defaults the preset restates explicitly.
   const config = withDefaults(await resolve(['github-actions/default', 'python/default', 'hardening/supply-chain']));
   for (const [dep, vulnerability] of fixes) {
     const result = await vulnerabilityFix(config, dep, vulnerability);
@@ -404,15 +409,14 @@ test('opt-in grouping moves every ReportPortal image in one branch and keeps maj
     'ReportPortal Gradle artifacts stay disabled');
 });
 
-test('opt-in grouping keeps the Django stack in one branch across all update types', { timeout: 30_000 }, async () => {
-  const stack = [
-    ['django', 'minor', 6], ['djangorestframework', 'major', 4],
-    ['django-cors-headers', 'patch', 4], ['whitenoise', 'minor', 6],
-  ];
+test('opt-in grouping groups the Django stack for every update type without hiding minors behind majors', { timeout: 30_000 }, async () => {
+  const stack = [['django', 'minor', 6], ['djangorestframework', 'minor', 3],
+    ['django-cors-headers', 'patch', 4], ['whitenoise', 'digest', 6]];
+  const majors = [['django', 'major', 6], ['djangorestframework', 'major', 4]];
   const pip = (name, update, major) => versioned('pip_requirements', name, update, major, { datasource: 'pypi' });
   const without = withDefaults(await resolve(['python/default']));
   assert.notEqual(await branchName(without, pip('django', 'minor', 6)),
-    await branchName(without, pip('djangorestframework', 'major', 4)), 'python/default splits framework and companion');
+    await branchName(without, pip('djangorestframework', 'minor', 3)), 'python/default does not group non-major updates');
 
   for (const presets of [['python/default', 'grouping/coupled-stacks'], ['base', 'grouping/coupled-stacks']]) {
     const config = withDefaults(await resolve(presets));
@@ -420,11 +424,19 @@ test('opt-in grouping keeps the Django stack in one branch across all update typ
     for (const [name, update, major] of stack) {
       const result = await effective(config, pip(name, update, major));
       assert.equal(result.groupName, 'django stack');
-      assert.equal(result.separateMajorMinor, false);
-      if (update === 'major') manualMajor(result);
+      assert.notEqual(result.separateMajorMinor, false, 'Minors must not wait behind a pending major');
+      safeNonMajor(result);
       branches.add(await branchName(config, pip(name, update, major)));
     }
     assert.deepEqual([...branches], ['renovate/django-stack'], presets.join(' + '));
+    const majorBranches = new Set();
+    for (const [name, update, major] of majors) {
+      const result = await effective(config, pip(name, update, major));
+      assert.equal(result.groupName, 'django stack');
+      manualMajor(result);
+      majorBranches.add(await branchName(config, pip(name, update, major)));
+    }
+    assert.deepEqual([...majorBranches], ['renovate/major-django-stack'], presets.join(' + '));
     assert.notEqual((await effective(config, pip('requests', 'minor', 2))).groupName, 'django stack');
   }
 });
