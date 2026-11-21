@@ -16,7 +16,6 @@
       "matchPackageNames": ["/^reportportal\\//"],
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true,
-      "prCreation": "approval",
       "automerge": false
     },
     {

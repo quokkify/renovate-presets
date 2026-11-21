@@ -22,6 +22,8 @@ const { getConfig: getDefaultConfig } = await load('config/defaults.js');
 const { mergeChildConfig } = await load('config/utils.js');
 const { generateBranchName } = await load('workers/repository/updates/branch-name.js');
 const { Vulnerabilities } = await load('workers/repository/process/vulnerabilities.js');
+const { groupReleasesIntoBuckets } = await load('workers/repository/process/lookup/bucket.js');
+const { get: getVersioning } = await load('modules/versioning/index.js');
 const { init: resetCache } = await load('util/cache/memory/index.js');
 const { init: initLogger } = await load('logger/index.js');
 await initLogger();
@@ -351,28 +353,34 @@ test('opt-in hardening opens vulnerability fixes immediately, unthrottled and wi
     [dependency('github-actions', 'tj-actions/changed-files', 'minor'), { datasource: 'github-tags', depVersion: 'v45.0.7', fixedVersion: 'v46.0.1' }],
   ];
   const base = withDefaults(await resolve(['github-actions/default', 'python/default']));
-  const baseFix = await vulnerabilityFix(base, ...fixes[0]);
-  assert.equal(baseFix.isVulnerabilityAlert, true);
-  assert.equal(baseFix.prCreation, 'approval', 'Base holds vulnerability PRs for approval today');
-  assert.equal(baseFix.branchConcurrentLimit, 3, 'Base caps vulnerability branches at 3 today');
 
   // Only prCreation and branchConcurrentLimit differ from base; the remaining
   // assertions pin the Renovate defaults the preset restates explicitly.
   const config = withDefaults(await resolve(['github-actions/default', 'python/default', 'hardening/supply-chain']));
   for (const [dep, vulnerability] of fixes) {
+    const before = await vulnerabilityFix(base, dep, vulnerability);
     const result = await vulnerabilityFix(config, dep, vulnerability);
+    assert.equal(before.isVulnerabilityAlert, true, `${dep.depName} must match the vulnerability rule`);
     assert.equal(result.isVulnerabilityAlert, true, `${dep.depName} must match the vulnerability rule`);
+    // The values the preset changes: base holds fixes for approval and caps branches at 3.
+    assert.equal(before.prCreation, 'approval');
     assert.equal(result.prCreation, 'immediate');
+    assert.equal(before.branchConcurrentLimit, 3);
+    assert.equal(result.branchConcurrentLimit, 0, '0 means no concurrent branch limit');
+    // Values the preset restates explicitly; Renovate defaults already provide them.
     assert.equal(result.dependencyDashboardApproval, false);
     assert.equal(result.minimumReleaseAge, null);
     assert.deepEqual(result.schedule, []);
     assert.equal(result.prConcurrentLimit, 0, '0 means no concurrent PR limit');
-    assert.equal(result.branchConcurrentLimit, 0, '0 means no concurrent branch limit');
     assert.equal(result.groupName, null, 'A fix is never held back by a group');
     assert.deepEqual(result.labels, ['security']);
   }
+  // Automerge is not forced: base already keeps a major fix manual, the preset
+  // newly keeps an action fix manual, and a library patch fix keeps automerging.
   assert.equal((await vulnerabilityFix(config, ...fixes[2])).automerge, false, 'A major fix still needs review');
+  assert.equal((await vulnerabilityFix(base, ...fixes[3])).automerge, true);
   assert.equal((await vulnerabilityFix(config, ...fixes[3])).automerge, false, 'An action fix still needs review');
+  assert.equal((await vulnerabilityFix(config, ...fixes[0])).automerge, true, 'A library patch fix still automerges');
 });
 
 test('opt-in grouping moves every ReportPortal image in one branch and keeps majors behind approval', { timeout: 30_000 }, async () => {
@@ -439,4 +447,29 @@ test('opt-in grouping groups the Django stack for every update type without hidi
     assert.deepEqual([...majorBranches], ['renovate/major-django-stack'], presets.join(' + '));
     assert.notEqual((await effective(config, pip('requests', 'minor', 2))).groupName, 'django stack');
   }
+});
+
+// Lookup stage: package rules without update-type matchers apply before Renovate
+// buckets candidate releases, so its own bucket logic decides which versions are offered.
+async function offeredBuckets(config, dep, versioning, currentVersion, versions) {
+  const lookup = await effective(config, { ...dep, updateType: undefined });
+  return Object.keys(groupReleasesIntoBuckets(lookup, currentVersion, versions.map((version) => ({ version })),
+    getVersioning(versioning))).sort();
+}
+
+test('opt-in grouping still offers minors while a major is available, and joins ReportPortal major hops', { timeout: 30_000 }, async () => {
+  const django = dependency('pip_requirements', 'django', undefined, { datasource: 'pypi' });
+  const djangoVersions = ['5.1.4', '5.2.0', '6.0.0'];
+  const portal = dependency('docker-compose', 'reportportal/service-api', undefined, { datasource: 'docker' });
+  const portalVersions = ['5.11.1', '5.12.0', '6.0.0', '7.0.0'];
+
+  const before = withDefaults(await resolve(['python/default', 'docker/default']));
+  assert.deepEqual(await offeredBuckets(before, django, 'pep440', '5.1.0', djangoVersions), ['non-major', 'v6']);
+  assert.deepEqual(await offeredBuckets(before, portal, 'docker', '5.11.0', portalVersions), ['non-major', 'v6', 'v7']);
+
+  const after = withDefaults(await resolve(['python/default', 'docker/default', 'grouping/coupled-stacks']));
+  assert.deepEqual(await offeredBuckets(after, django, 'pep440', '5.1.0', djangoVersions), ['major', 'non-major'],
+    'The Django minor must still be offered next to the major');
+  assert.deepEqual(await offeredBuckets(after, portal, 'docker', '5.11.0', portalVersions), ['major', 'non-major'],
+    'ReportPortal minors stay offered; all major hops collapse into one bucket');
 });

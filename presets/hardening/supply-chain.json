@@ -21,11 +21,6 @@
       "automerge": false
     },
     {
-      "description": "Never automerge Dockerfile or docker-compose updates, including non-image references these managers extract",
-      "matchManagers": ["dockerfile", "docker-compose"],
-      "automerge": false
-    },
-    {
       "description": "Never automerge Gradle plugins: they run inside the build with full access to sources and credentials",
       "matchManagers": ["gradle"],
       "matchDepTypes": ["plugin"],
