@@ -2,10 +2,30 @@
 
 ## [0.6.0](https://github.com/quokkify/renovate-presets/compare/v0.5.0...v0.6.0) (2026-11-21)
 
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 1 new · 2 internal
 
-### ✨ Features
+### ✨ New
 
-* **presets:** add opt-in supply-chain hardening and stack grouping ([#79](https://github.com/quokkify/renovate-presets/issues/79)) ([199f0dc](https://github.com/quokkify/renovate-presets/commit/199f0dc0f9a0a45645f456117eb6db4d31147991))
+- **presets:** add opt-in supply-chain hardening and stack grouping — New opt-in presets: `hardening/supply-chain` stops automerge for CI, image, build-plugin, tool-pin and lock-file updates and opens security fixes at once; `grouping/coupled-stacks` moves ReportPortal images and the Django stack in one branch. Add them last in `extends`. ([#79](https://github.com/quokkify/renovate-presets/pull/79))
+  ```json
+  {
+    "extends": [
+      "github>quokkify/renovate-presets//presets/python/default",
+      "github>quokkify/renovate-presets//presets/docker/default",
+      "github>quokkify/renovate-presets//presets/hardening/supply-chain",
+      "github>quokkify/renovate-presets//presets/grouping/coupled-stacks"
+    ]
+  }
+  ```
+
+<details><summary>Internal changes (2 PRs)</summary>
+
+**Maintenance**
+
+- **template:** update shared project template ([#77](https://github.com/quokkify/renovate-presets/pull/77), [#78](https://github.com/quokkify/renovate-presets/pull/78))
+
+</details>
 
 ## [0.5.0](https://github.com/quokkify/renovate-presets/compare/v0.4.0...v0.5.0) (2026-11-07)
 
