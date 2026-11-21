@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/quokkify/renovate-presets/compare/v0.5.0...v0.6.0) (2026-11-21)
+
+
+### ✨ Features
+
+* **presets:** add opt-in supply-chain hardening and stack grouping ([#79](https://github.com/quokkify/renovate-presets/issues/79)) ([199f0dc](https://github.com/quokkify/renovate-presets/commit/199f0dc0f9a0a45645f456117eb6db4d31147991))
+
 ## [0.5.0](https://github.com/quokkify/renovate-presets/compare/v0.4.0...v0.5.0) (2026-11-07)
 
 <!-- project-toolkit:release-notes v2 -->
