@@ -38,6 +38,16 @@ so a released configuration cannot silently pull modules from `main`. See
 These relative references belong inside shared presets; consumer configuration
 must continue using the absolute `github>` form shown above.
 
+### Blast radius
+
+Most consumers reference these presets without a tag, so they read the default
+branch: a change merged to `main` reaches every unpinned consumer on its next
+Renovate run, all at once. Only consumers that pin a tag (`#vX.Y.Z`) wait for an
+explicit configuration update. Treat every merge to `main` as a fleet-wide rollout
+unless the consumers are pinned. New policy therefore ships as a separate opt-in
+preset that no existing preset extends, and it reaches a repository only when that
+repository adds it to its own `extends`.
+
 Promotion order: merge and validate a change, observe selected pilot repositories
 using the unpinned default-branch form, publish a release, then open updates to
 the stable consumers' explicit tags. Do not point stable consumers at an older
@@ -81,13 +91,120 @@ For GitHub Actions `uses-with` dependencies named `java-jdk`, major updates requ
 
 | Preset | Path | Description |
 |---|---|---|
-| Default | `presets/docker/default` | Composable: groups Dockerfile and docker-compose updates, but keeps `postgres`, `python`, `node` and `nginx` image non-major/digest updates in dedicated automerge PRs (does not restrict managers) |
+| Default | `presets/docker/default` | Composable: groups Dockerfile and docker-compose non-major/digest updates into one `docker images` PR, and gives `postgres`, `python`, `node` and `nginx` their own PR each (does not restrict managers). Automerge is not isolated to those four images: every Docker non-major/digest update, grouped or not, automerges after the base preset's 3-day stability gate. To keep image updates out of automerge, add [`hardening/supply-chain`](#supply-chain-hardening-opt-in). |
 
 ### npm / JS / TS
 
 | Preset | Path | Description |
 |---|---|---|
 | Default | `presets/npm/default` | Composable: npm packageRules; keeps Playwright non-major updates in a dedicated automerge PR and groups selected major ecosystems |
+
+### Supply-chain hardening (opt-in)
+
+| Preset | Path | Description |
+|---|---|---|
+| Supply chain | `presets/hardening/supply-chain` | Turns automerge off for updates that execute in CI or builds, keeps lock-file maintenance as a reviewed PR, and opens vulnerability fixes immediately without the release-age wait or concurrency caps. Ordinary library updates keep the base automerge. |
+
+No existing preset extends it. Add it **last**, after every preset it hardens: it only
+appends package rules, and Renovate applies later rules over earlier ones, so a
+preset listed after it (for example `docker/default`, whose runtime-image rules set
+`automerge: true`) would switch automerge back on.
+
+```json
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>quokkify/renovate-presets//presets/gradle/service",
+    "github>quokkify/renovate-presets//presets/docker/default",
+    "github>quokkify/renovate-presets//presets/hardening/supply-chain"
+  ]
+}
+```
+
+Effective behaviour on top of the base preset:
+
+- **No automerge** for GitHub Actions (including workflow container and service
+  images), all Docker images (`docker` datasource, which covers Dockerfile and
+  docker-compose images), the Gradle wrapper, Gradle plugins (`depType: plugin`),
+  Maven `depType: build` (build plugins and extensions, plus anything else Renovate
+  extracts from `<build>`/`<reporting>`) and `custom.regex` tool
+  pins. Their non-major PRs still open without dashboard approval after the 3-day
+  stability gate; a human merges them. Majors stay manual as in the base preset.
+- **Lock-file maintenance is not automerged.** `config:best-practices` enables it
+  weekly (`:maintainLockFilesWeekly`), and base automerges it with no
+  `minimumReleaseAge` (the base 3-day rule matches only patch, minor and digest).
+  A lock-file refresh can pull in transitive versions published minutes earlier, and
+  those versions do not pass through Renovate's per-dependency release-age check, so
+  a human review before merging is the reliable control.
+- **Vulnerability fixes open at once.** `vulnerabilityAlerts` sets
+  `prCreation: immediate`, `dependencyDashboardApproval: false`,
+  `minimumReleaseAge: null` and `schedule: []`, and lifts the concurrency caps with
+  `prConcurrentLimit: 0` and `branchConcurrentLimit: 0` (0 means no limit). Renovate
+  applies these as forced settings after every package rule, counts vulnerability
+  branches against a budget separate from ordinary updates, never applies
+  `prHourlyLimit` to them, and always processes them before other branches. Automerge
+  is not forced: a fix for an execution-sensitive dependency or a major fix still
+  waits for review, while a library patch fix automerges on green checks.
+  **This is a deliberate reversal of base, not a refinement:** base holds every
+  vulnerability PR for Dependency Dashboard approval (`prCreation: "approval"`) and
+  caps vulnerability branches at 3; this preset removes both. The gain is that fixes
+  never wait for a human to tick a box; the cost is that a repository with many open
+  advisories can receive many security PRs at once. [Issue #80](https://github.com/quokkify/renovate-presets/issues/80) asks whether base
+  should change.
+
+### Coupled-stack grouping (opt-in)
+
+| Preset | Path | Description |
+|---|---|---|
+| Coupled stacks | `presets/grouping/coupled-stacks` | Moves stacks whose parts must change together in one branch: all `reportportal/*` Docker images, and the Django stack (`django`, `djangorestframework`, `django-cors-headers`, `whitenoise`) across every update type. |
+
+No existing preset extends it. Add it **last**, after `python/default` or
+`docker/default`, for the same rule-order reason as the hardening preset:
+
+```json
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>quokkify/renovate-presets//presets/python/default",
+    "github>quokkify/renovate-presets//presets/docker/default",
+    "github>quokkify/renovate-presets//presets/grouping/coupled-stacks"
+  ]
+}
+```
+
+- **ReportPortal images** (`/^reportportal\//` on the `docker` datasource) share the
+  `reportportal images` group. `separateMultipleMajor: false` puts every major hop in
+  one `major-reportportal-images` branch instead of one per image and target major;
+  majors need Dependency Dashboard approval and never automerge. `separateMajorMinor`
+  keeps its default, so a pending major never hides a newer minor. Non-major updates
+  share the `reportportal-images` branch and follow the base stability gate.
+  ReportPortal Gradle artifacts stay disabled by `gradle/modules/disabled`.
+- **Django stack** packages on PyPI share the `django stack` group for every update
+  type: minor, patch and digest updates land together in the `django-stack` branch,
+  majors together in `major-django-stack` (dashboard approval, as in base).
+  `separateMajorMinor` stays on on purpose: turning it off offers only the newest
+  version, so a project behind a pending major would stop receiving minors. A
+  framework minor and a companion major therefore still arrive in separate
+  branches. This replaces the major-only `django stack major`
+  group from `python/modules/grouping` for consumers that add the preset. A branch
+  that contains a major still needs dashboard approval.
+- Vulnerability fixes keep their own branch: Renovate's `vulnerabilityAlerts`
+  defaults force `groupName: null`, so a security fix is never held back by its
+  group. Combine with `hardening/supply-chain` so such fixes open immediately.
+
+### Adopting an opt-in preset: canary first
+
+1. Pick one canary repository with green required checks and an active Dependency
+   Dashboard. Add the opt-in preset as the last `extends` entry in a reviewed PR.
+2. Before merging, run `renovate-config-validator --strict` on the consumer config.
+   After merging, read the Dependency Dashboard and the Renovate job log of the next
+   run to confirm the preset resolved and the expected branches were planned.
+3. Watch one full update cycle (at least a week, so the Monday GitHub Actions
+   schedule and the 3-day stability gate both elapse): confirm that execution-sensitive
+   PRs open without automerging, library PRs still automerge, and grouped stacks
+   arrive in one branch.
+4. Roll out to the remaining repositories one PR each, preferably pinned to the
+   release tag that contains the preset. Revert is removing the `extends` entry.
 
 ### Migrations
 
@@ -173,7 +290,13 @@ The suite checks manual major updates (including Java JDK), the three-day
 patch/minor/digest stability gate, lock-file maintenance, toolkit-owned workflow
 and Copier exclusions, and every ordering of Docker/npm/Gradle/GitHub Actions
 presets. A mutation test verifies that the original broad GitHub Actions
-automerge override breaks the contract. These are configuration-policy tests;
+automerge override breaks the contract. The opt-in presets are tested composed
+after the existing ones: execution-sensitive updates, lock-file maintenance and
+library updates under `hardening/supply-chain`, vulnerability fixes built with
+Renovate's own vulnerability package-rule generator, the effect of listing the
+preset too early, and branch names computed by Renovate's branch-name generator for
+the ReportPortal and Django groups. A guard test fails if any existing preset starts
+extending an opt-in preset. These are configuration-policy tests;
 required-check enforcement and actual merge execution remain platform concerns.
 The graph tests also verify tag inheritance through every shipped preset and
 continued unpinned pilot resolution. The filename gate reads Git's tracked index,

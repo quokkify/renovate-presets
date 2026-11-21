@@ -18,6 +18,12 @@ const load = (name) => import(pathToFileURL(path.join(renovateRoot, 'dist', name
 const { resolveConfigPresets, presetSources } = await load('config/presets/index.js');
 const { applyPackageRules } = await load('util/package-rules/index.js');
 const template = await load('util/template/index.js');
+const { getConfig: getDefaultConfig } = await load('config/defaults.js');
+const { mergeChildConfig } = await load('config/utils.js');
+const { generateBranchName } = await load('workers/repository/updates/branch-name.js');
+const { Vulnerabilities } = await load('workers/repository/process/vulnerabilities.js');
+const { groupReleasesIntoBuckets } = await load('workers/repository/process/lookup/bucket.js');
+const { get: getVersioning } = await load('modules/versioning/index.js');
 const { init: resetCache } = await load('util/cache/memory/index.js');
 const { init: initLogger } = await load('logger/index.js');
 await initLogger();
@@ -71,7 +77,7 @@ const dependency = (manager, depName, updateType, extra = {}) => ({
 
 test('tagged presets inherit the release tag across the full graph; unpinned pilots use default branch', { timeout: 30_000 }, async () => {
   const entries = ['gradle/service', 'gradle/q4j', 'docker/default', 'npm/default', 'python/default',
-    'github-actions/default', 'migrations/javax-to-jakarta'];
+    'github-actions/default', 'migrations/javax-to-jakarta', 'hardening/supply-chain', 'grouping/coupled-stacks'];
   const expectedFiles = ['default.json', ...readdirSync(path.join(root, 'presets'), { recursive: true })
     .filter((file) => file.endsWith('.json')).map((file) => `presets/${file}`)].sort();
   for (const tag of ['v9.9.9-test', undefined]) {
@@ -233,4 +239,237 @@ test('contract detects the original broad automerge override in the actual compo
     depType: 'uses-with',
   }));
   assert.throws(() => manualMajor(result), /Major update must not automerge/);
+});
+
+// Opt-in presets below are appended after the presets a consumer already uses.
+// Renovate's option defaults are merged in so that mergeable objects such as
+// vulnerabilityAlerts and the group branch templates match a real run.
+const optIn = ['presets/hardening/supply-chain.json', 'presets/grouping/coupled-stacks.json'];
+const withDefaults = (config) => mergeChildConfig(getDefaultConfig(), config);
+async function branchName(config, dep) {
+  const result = await effective(config, dep);
+  generateBranchName(result);
+  return result.branchName;
+}
+const versioned = (manager, depName, updateType, newMajor, extra = {}) => dependency(manager, depName, updateType, {
+  depNameSanitized: depName.replace(/[^a-z0-9]+/gi, '-').toLowerCase(),
+  newMajor,
+  newMinor: 0,
+  ...extra,
+});
+// Builds the package rule exactly as Renovate's OSV integration does for a
+// vulnerable dependency, then applies it after all configured package rules.
+async function vulnerabilityFix(config, dep, { datasource, depVersion, fixedVersion }) {
+  const rule = Object.create(Vulnerabilities.prototype).vulnerabilityToPackageRules({
+    vulnerability: { id: 'GHSA-test-test-test', summary: 'Test advisory', details: 'Test advisory' },
+    affected: {},
+    packageName: dep.packageName,
+    depVersion,
+    fixedVersion,
+    datasource,
+    packageFileConfig: config,
+  });
+  return effective({ ...config, packageRules: [...config.packageRules, rule] },
+    { ...dep, datasource, currentValue: depVersion, currentVersion: depVersion, newVersion: fixedVersion });
+}
+
+test('existing presets never pull in the opt-in hardening or grouping presets', { timeout: 60_000 }, async () => {
+  const entries = readdirSync(path.join(root, 'presets'), { recursive: true })
+    .filter((file) => file.endsWith('.json') && !optIn.includes(`presets/${file}`))
+    .map((file) => file.replace(/\.json$/, ''));
+  assert.ok(entries.includes('base') && entries.includes('python/modules/grouping'));
+  for (const entry of entries) {
+    await resolve([entry]);
+    const files = requestedPresets.map(({ presetPath, presetName }) => `${presetPath}/${presetName}.json`);
+    for (const file of optIn) assert.ok(!files.includes(file), `${entry} must not extend ${file}`);
+  }
+  for (const file of optIn) {
+    const preset = JSON.parse(readFileSync(path.join(root, file), 'utf8'));
+    assert.equal(preset.extends, undefined, `${file} must only add rules after the consumer's own presets`);
+    assert.equal(preset.enabledManagers, undefined, `${file} must not replace enabledManagers`);
+  }
+});
+
+const sensitive = [
+  ['github-actions', 'actions/checkout', 'digest'],
+  ['github-actions', 'actions/setup-java', 'minor'],
+  ['github-actions', 'postgres', 'minor', { datasource: 'docker', depType: 'service' }],
+  ['dockerfile', 'eclipse-temurin', 'minor', { datasource: 'docker' }],
+  ['docker-compose', 'postgres', 'patch', { datasource: 'docker' }],
+  ['dockerfile', 'python', 'digest', { datasource: 'docker' }],
+  ['gradle', 'org.springframework.boot:org.springframework.boot.gradle.plugin', 'patch', { depType: 'plugin' }],
+  ['maven', 'org.apache.maven.plugins:maven-surefire-plugin', 'minor', { depType: 'build' }],
+  ['gradle-wrapper', 'gradle', 'minor'],
+  ['custom.regex', 'rhysd/actionlint', 'patch'],
+];
+const libraries = [
+  ['npm', 'react', 'patch'],
+  ['npm', '@playwright/test', 'minor'],
+  ['gradle', 'org.hibernate.orm:hibernate-core', 'patch', { depType: 'dependencies' }],
+  ['pip_requirements', 'requests', 'minor', { datasource: 'pypi' }],
+];
+
+test('opt-in hardening stops automerge for execution-sensitive updates and keeps library automerge', { timeout: 120_000 }, async (t) => {
+  for (const presets of [
+    ['base', 'hardening/supply-chain'],
+    ['gradle/default', 'docker/default', 'npm/default', 'github-actions/default', 'python/default', 'hardening/supply-chain'],
+    ['gradle/service', 'docker/default', 'hardening/supply-chain'],
+  ]) {
+    await t.test(presets.join(' + '), { timeout: 30_000 }, async () => {
+      const config = withDefaults(await resolve(presets));
+      for (const [manager, name, update, extra] of sensitive) {
+        const result = await effective(config, dependency(manager, name, update, extra));
+        assert.equal(result.automerge, false, `${manager} ${name} ${update} must wait for review`);
+        assert.equal(result.dependencyDashboardApproval, false, `${manager} ${name} ${update} PR must still open`);
+        assert.equal(result.minimumReleaseAge, '3 days');
+        manualMajor(await effective(config, dependency(manager, name, 'major', extra)));
+      }
+      for (const [manager, name, update, extra] of libraries) {
+        safeNonMajor(await effective(config, dependency(manager, name, update, extra)));
+        manualMajor(await effective(config, dependency(manager, name, 'major', extra)));
+      }
+      const lockfile = await effective(config, dependency('npm', 'lockfile', 'lockFileMaintenance'));
+      assert.equal(lockfile.automerge, false, 'Lock-file maintenance must wait for review');
+      assert.equal(lockfile.dependencyDashboardApproval, false, 'Lock-file maintenance PR must still open');
+    });
+  }
+});
+
+test('opt-in hardening must come after the presets it hardens', { timeout: 30_000 }, async () => {
+  const misordered = await resolve(['hardening/supply-chain', 'docker/default']);
+  const postgres = await effective(misordered, dependency('docker-compose', 'postgres', 'patch', { datasource: 'docker' }));
+  assert.equal(postgres.automerge, true, 'A later docker/default rule re-enables automerge; document the order');
+  const ordered = await resolve(['docker/default', 'hardening/supply-chain']);
+  assert.equal((await effective(ordered, dependency('docker-compose', 'postgres', 'patch', { datasource: 'docker' }))).automerge, false);
+});
+
+// Renovate always processes vulnerability branches before all others (sortBranches),
+// and the validator rejects prPriority inside vulnerabilityAlerts.
+test('opt-in hardening opens vulnerability fixes immediately, unthrottled and without the release-age wait', { timeout: 60_000 }, async () => {
+  const fixes = [
+    [dependency('npm', 'lodash', 'patch'), { datasource: 'npm', depVersion: '4.17.20', fixedVersion: '4.17.21' }],
+    [dependency('pip_requirements', 'djangorestframework', 'minor'), { datasource: 'pypi', depVersion: '3.15.2', fixedVersion: '3.16.0' }],
+    [dependency('npm', 'next', 'major'), { datasource: 'npm', depVersion: '13.5.0', fixedVersion: '14.2.0' }],
+    [dependency('github-actions', 'tj-actions/changed-files', 'minor'), { datasource: 'github-tags', depVersion: 'v45.0.7', fixedVersion: 'v46.0.1' }],
+  ];
+  const base = withDefaults(await resolve(['github-actions/default', 'python/default']));
+
+  // Only prCreation and branchConcurrentLimit differ from base; the remaining
+  // assertions pin the Renovate defaults the preset restates explicitly.
+  const config = withDefaults(await resolve(['github-actions/default', 'python/default', 'hardening/supply-chain']));
+  for (const [dep, vulnerability] of fixes) {
+    const before = await vulnerabilityFix(base, dep, vulnerability);
+    const result = await vulnerabilityFix(config, dep, vulnerability);
+    assert.equal(before.isVulnerabilityAlert, true, `${dep.depName} must match the vulnerability rule`);
+    assert.equal(result.isVulnerabilityAlert, true, `${dep.depName} must match the vulnerability rule`);
+    // The values the preset changes: base holds fixes for approval and caps branches at 3.
+    assert.equal(before.prCreation, 'approval');
+    assert.equal(result.prCreation, 'immediate');
+    assert.equal(before.branchConcurrentLimit, 3);
+    assert.equal(result.branchConcurrentLimit, 0, '0 means no concurrent branch limit');
+    // Values the preset restates explicitly; Renovate defaults already provide them.
+    assert.equal(result.dependencyDashboardApproval, false);
+    assert.equal(result.minimumReleaseAge, null);
+    assert.deepEqual(result.schedule, []);
+    assert.equal(result.prConcurrentLimit, 0, '0 means no concurrent PR limit');
+    assert.equal(result.groupName, null, 'A fix is never held back by a group');
+    assert.deepEqual(result.labels, ['security']);
+  }
+  // Automerge is not forced: base already keeps a major fix manual, the preset
+  // newly keeps an action fix manual, and a library patch fix keeps automerging.
+  assert.equal((await vulnerabilityFix(config, ...fixes[2])).automerge, false, 'A major fix still needs review');
+  assert.equal((await vulnerabilityFix(base, ...fixes[3])).automerge, true);
+  assert.equal((await vulnerabilityFix(config, ...fixes[3])).automerge, false, 'An action fix still needs review');
+  assert.equal((await vulnerabilityFix(config, ...fixes[0])).automerge, true, 'A library patch fix still automerges');
+});
+
+test('opt-in grouping moves every ReportPortal image in one branch and keeps majors behind approval', { timeout: 30_000 }, async () => {
+  const images = ['reportportal/service-api', 'reportportal/service-ui', 'reportportal/service-jobs'];
+  const without = withDefaults(await resolve(['docker/default']));
+  const split = new Set();
+  for (const [index, image] of images.entries()) {
+    split.add(await branchName(without, versioned('docker-compose', image, 'major', 5 + (index % 2), { datasource: 'docker' })));
+  }
+  assert.equal(split.size, images.length, 'Without the preset every image and hop gets its own branch');
+
+  const config = withDefaults(await resolve(['docker/default', 'grouping/coupled-stacks']));
+  const majors = new Set();
+  for (const [index, image] of images.entries()) {
+    const dep = versioned('docker-compose', image, 'major', 5 + (index % 2), { datasource: 'docker' });
+    const result = await effective(config, dep);
+    manualMajor(result);
+    assert.equal(result.groupName, 'reportportal images');
+    assert.equal(result.separateMultipleMajor, false);
+    majors.add(await branchName(config, dep));
+  }
+  assert.deepEqual([...majors], ['renovate/major-reportportal-images']);
+  const minors = new Set();
+  for (const image of images) {
+    const dep = versioned('dockerfile', image, 'minor', 5, { datasource: 'docker' });
+    safeNonMajor(await effective(config, dep));
+    minors.add(await branchName(config, dep));
+  }
+  assert.deepEqual([...minors], ['renovate/reportportal-images']);
+  assert.equal((await effective(config, dependency('dockerfile', 'postgres', 'minor', { datasource: 'docker' }))).groupName,
+    'postgres docker image', 'Other images keep their docker/default groups');
+  const gradle = withDefaults(await resolve(['gradle/default', 'grouping/coupled-stacks']));
+  assert.equal((await effective(gradle, dependency('gradle', 'com.epam.reportportal:agent-java-junit5', 'minor'))).enabled, false,
+    'ReportPortal Gradle artifacts stay disabled');
+});
+
+test('opt-in grouping groups the Django stack for every update type without hiding minors behind majors', { timeout: 30_000 }, async () => {
+  const stack = [['django', 'minor', 6], ['djangorestframework', 'minor', 3],
+    ['django-cors-headers', 'patch', 4], ['whitenoise', 'digest', 6]];
+  const majors = [['django', 'major', 6], ['djangorestframework', 'major', 4]];
+  const pip = (name, update, major) => versioned('pip_requirements', name, update, major, { datasource: 'pypi' });
+  const without = withDefaults(await resolve(['python/default']));
+  assert.notEqual(await branchName(without, pip('django', 'minor', 6)),
+    await branchName(without, pip('djangorestframework', 'minor', 3)), 'python/default does not group non-major updates');
+
+  for (const presets of [['python/default', 'grouping/coupled-stacks'], ['base', 'grouping/coupled-stacks']]) {
+    const config = withDefaults(await resolve(presets));
+    const branches = new Set();
+    for (const [name, update, major] of stack) {
+      const result = await effective(config, pip(name, update, major));
+      assert.equal(result.groupName, 'django stack');
+      assert.notEqual(result.separateMajorMinor, false, 'Minors must not wait behind a pending major');
+      safeNonMajor(result);
+      branches.add(await branchName(config, pip(name, update, major)));
+    }
+    assert.deepEqual([...branches], ['renovate/django-stack'], presets.join(' + '));
+    const majorBranches = new Set();
+    for (const [name, update, major] of majors) {
+      const result = await effective(config, pip(name, update, major));
+      assert.equal(result.groupName, 'django stack');
+      manualMajor(result);
+      majorBranches.add(await branchName(config, pip(name, update, major)));
+    }
+    assert.deepEqual([...majorBranches], ['renovate/major-django-stack'], presets.join(' + '));
+    assert.notEqual((await effective(config, pip('requests', 'minor', 2))).groupName, 'django stack');
+  }
+});
+
+// Lookup stage: package rules without update-type matchers apply before Renovate
+// buckets candidate releases, so its own bucket logic decides which versions are offered.
+async function offeredBuckets(config, dep, versioning, currentVersion, versions) {
+  const lookup = await effective(config, { ...dep, updateType: undefined });
+  return Object.keys(groupReleasesIntoBuckets(lookup, currentVersion, versions.map((version) => ({ version })),
+    getVersioning(versioning))).sort();
+}
+
+test('opt-in grouping still offers minors while a major is available, and joins ReportPortal major hops', { timeout: 30_000 }, async () => {
+  const django = dependency('pip_requirements', 'django', undefined, { datasource: 'pypi' });
+  const djangoVersions = ['5.1.4', '5.2.0', '6.0.0'];
+  const portal = dependency('docker-compose', 'reportportal/service-api', undefined, { datasource: 'docker' });
+  const portalVersions = ['5.11.1', '5.12.0', '6.0.0', '7.0.0'];
+
+  const before = withDefaults(await resolve(['python/default', 'docker/default']));
+  assert.deepEqual(await offeredBuckets(before, django, 'pep440', '5.1.0', djangoVersions), ['non-major', 'v6']);
+  assert.deepEqual(await offeredBuckets(before, portal, 'docker', '5.11.0', portalVersions), ['non-major', 'v6', 'v7']);
+
+  const after = withDefaults(await resolve(['python/default', 'docker/default', 'grouping/coupled-stacks']));
+  assert.deepEqual(await offeredBuckets(after, django, 'pep440', '5.1.0', djangoVersions), ['major', 'non-major'],
+    'The Django minor must still be offered next to the major');
+  assert.deepEqual(await offeredBuckets(after, portal, 'docker', '5.11.0', portalVersions), ['major', 'non-major'],
+    'ReportPortal minors stay offered; all major hops collapse into one bucket');
 });
