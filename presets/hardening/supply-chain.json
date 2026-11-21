@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Opt-in supply-chain hardening module. Extend it LAST, after the base or */default presets it hardens: it only appends packageRules and vulnerabilityAlerts settings and does not extend any other preset.",
+  "vulnerabilityAlerts": {
+    "dependencyDashboardApproval": false,
+    "prCreation": "immediate",
+    "minimumReleaseAge": null,
+    "schedule": [],
+    "prConcurrentLimit": 0,
+    "branchConcurrentLimit": 0
+  },
+  "packageRules": [
+    {
+      "description": "Never automerge GitHub Actions, Gradle wrapper or custom regex tool pins: they execute in CI and build environments, so every update waits for a human review after the stability gate",
+      "matchManagers": ["github-actions", "gradle-wrapper", "custom.regex"],
+      "automerge": false
+    },
+    {
+      "description": "Never automerge container images (Dockerfile and docker-compose base images, CI service and job images): they execute as the runtime of the build or service",
+      "matchDatasources": ["docker"],
+      "automerge": false
+    },
+    {
+      "description": "Never automerge Dockerfile or docker-compose updates, including non-image references these managers extract",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "automerge": false
+    },
+    {
+      "description": "Never automerge Gradle plugins: they run inside the build with full access to sources and credentials",
+      "matchManagers": ["gradle"],
+      "matchDepTypes": ["plugin"],
+      "automerge": false
+    },
+    {
+      "description": "Never automerge Maven build plugins and extensions: they run inside the build with full access to sources and credentials",
+      "matchManagers": ["maven"],
+      "matchDepTypes": ["build"],
+      "automerge": false
+    },
+    {
+      "description": "Keep lock-file maintenance as a reviewed PR: it refreshes transitive versions that no minimumReleaseAge gate covers, because those updates carry no release timestamp",
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "automerge": false
+    }
+  ]
+}

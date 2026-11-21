@@ -1,0 +1,32 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Opt-in grouping for stacks whose parts must move together. Extend it LAST, after the base or */default presets: it only appends packageRules and does not extend any other preset.",
+  "packageRules": [
+    {
+      "description": "Update all ReportPortal images in one branch: the services share one database schema and API, so a single-image bump leaves the stack unhealthy. All major hops land in one branch instead of one branch per target major.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/^reportportal\\//"],
+      "groupName": "reportportal images",
+      "groupSlug": "reportportal-images",
+      "separateMultipleMajor": false
+    },
+    {
+      "description": "ReportPortal major updates need explicit Dependency Dashboard approval and are never automerged",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/^reportportal\\//"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "prCreation": "approval",
+      "automerge": false
+    },
+    {
+      "description": "Update the Django stack in one branch for every update type, so a framework bump cannot land without its companion packages",
+      "matchDatasources": ["pypi"],
+      "matchPackageNames": ["django", "djangorestframework", "django-cors-headers", "whitenoise"],
+      "groupName": "django stack",
+      "groupSlug": "django-stack",
+      "separateMajorMinor": false,
+      "separateMultipleMajor": false
+    }
+  ]
+}
